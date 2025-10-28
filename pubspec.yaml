@@ -1,0 +1,40 @@
+name: hanacaraka_app
+description: Aplikasi Belajar Menulis Hanacaraka (Kelompok 21)
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Untuk ikon yang mirip dengan lucide-react
+  lucide_flutter: ^0.548.0
+
+  intl: ^0.20.2
+
+  # Untuk Text-to-Speech (fitur audio highlight)
+  flutter_tts: ^4.0.2
+
+  # Untuk manajemen state
+  provider: ^6.1.2
+
+  # Untuk status bar (opsional, tapi cocok dengan desain)
+  flutter_statusbarcolor_ns: ^0.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Pastikan Anda memiliki font Jawa untuk menampilkan aksara
+  # Download font 'Ngaso' atau 'Tuladha Jejeg' dan letakkan di folder fonts
+  fonts:
+    - family: Javanese
+      fonts:
+        - asset: assets/fonts/TuladhaJejeg_gr.ttf
