@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/models/aksara_model.dart';
 
 // Enum untuk semua layar yang mungkin
 enum Screen {
@@ -17,13 +18,13 @@ class AppState extends ChangeNotifier {
   Screen _currentScreen = Screen.main;
   String _activeTab = 'home';
   String _selectedCategory = '';
-  HanacarakaChar? _selectedCharacter;
+  AksaraModel? _selectedCharacter;
 
   // Getters
   Screen get currentScreen => _currentScreen;
   String get activeTab => _activeTab;
   String get selectedCategory => _selectedCategory;
-  HanacarakaChar? get selectedCharacter => _selectedCharacter;
+  AksaraModel? get selectedCharacter => _selectedCharacter;
 
   // Mendapatkan judul berdasarkan layar saat ini
   String getScreenTitle() {
@@ -59,13 +60,13 @@ class AppState extends ChangeNotifier {
       case Screen.learnCharacters:
         return categoryNames[_selectedCategory] ?? '';
       case Screen.learnDetail:
-        return _selectedCharacter?.latin ?? '';
+        return _selectedCharacter?.namaLatin ?? '';
       case Screen.writeCategories:
         return 'Latihan Menulis';
       case Screen.writeCharacters:
         return 'Kategori ${categoryNames[_selectedCategory] ?? ''}';
       case Screen.writeCanvas:
-        return _selectedCharacter?.latin ?? '';
+        return _selectedCharacter?.namaLatin ?? '';
       case Screen.translate:
         return 'Latin ↔ Aksara Jawa';
       default:
@@ -91,9 +92,8 @@ class AppState extends ChangeNotifier {
         _selectedCategory = '';
         break;
       case Screen.learnDetail:
-        _currentScreen = _selectedCategory.isEmpty
-            ? Screen.main
-            : Screen.learnCharacters;
+        _currentScreen =
+            _selectedCategory.isEmpty ? Screen.main : Screen.learnCharacters;
         if (_selectedCategory.isEmpty) _activeTab = 'home';
         _selectedCharacter = null;
         break;
@@ -145,7 +145,7 @@ class AppState extends ChangeNotifier {
   }
 
   void handleCharacterSelect(
-    HanacarakaChar character, {
+    AksaraModel character, {
     bool fromMainMenu = false,
   }) {
     _selectedCharacter = character;

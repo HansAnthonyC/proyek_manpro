@@ -1,15 +1,33 @@
-// Diterjemahkan dari GoogleTranslateStyle.tsx
-import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/services/data_service.dart';
 
 class TranslatorService {
-  // Peta terbalik untuk Java -> Latin
+  // Peta akan dibangun oleh DataService
+  late Map<String, String> _latinToJavaMap;
   late Map<String, String> _javaToLatinMap;
 
-  TranslatorService() {
+  // Ubah constructor untuk MENERIMA DataService
+  TranslatorService(DataService dataService) {
+    _latinToJavaMap = {};
     _javaToLatinMap = {};
-    latinToHanacarakaMap.forEach((latin, java) {
-      _javaToLatinMap[java] = latin;
-    });
+
+    // Bangun peta dari data yang sudah dimuat
+    for (var aksara in dataService.allAksara) {
+      // Hanya petakan kategori dasar untuk transliterasi sederhana
+      if (aksara.kategori == 'nglegena' || aksara.kategori == 'wilangan') {
+        // Peta Latin -> Jawa
+        _latinToJavaMap[aksara.namaLatin.toLowerCase()] = aksara.aksara;
+        // Peta Jawa -> Latin
+        _javaToLatinMap[aksara.aksara] = aksara.namaLatin;
+      }
+    }
+
+    // // Anda mungkin perlu menambahkan pemetaan manual untuk 'nga', 'nya', 'dha', 'tha'
+    // // jika tidak ada di CSV sebagai 'namaLatin' yang unik
+    // _latinToJavaMap['nga'] = 'ꦔ';
+    // _latinToJavaMap['nya'] = 'ꦚ';
+    // _latinToJavaMap['dha'] = 'ꦝ';
+    // _latinToJavaMap['tha'] = 'ꦛ';
+    // // ... etc
   }
 
   String translateLatinToJava(String text) {
@@ -26,8 +44,9 @@ class TranslatorService {
         // Cari 3-huruf (nga, nya, dll)
         if (i + 3 <= word.length) {
           String substr = word.substring(i, i + 3);
-          if (latinToHanacarakaMap.containsKey(substr)) {
-            result += latinToHanacarakaMap[substr]!;
+          if (_latinToJavaMap.containsKey(substr)) {
+            // <-- Gunakan peta dinamis
+            result += _latinToJavaMap[substr]!;
             i += 3;
             found = true;
           }
@@ -35,8 +54,9 @@ class TranslatorService {
         // Cari 2-huruf
         if (!found && i + 2 <= word.length) {
           String substr = word.substring(i, i + 2);
-          if (latinToHanacarakaMap.containsKey(substr)) {
-            result += latinToHanacarakaMap[substr]!;
+          if (_latinToJavaMap.containsKey(substr)) {
+            // <-- Gunakan peta dinamis
+            result += _latinToJavaMap[substr]!;
             i += 2;
             found = true;
           }
@@ -44,8 +64,9 @@ class TranslatorService {
         // Cari 1-huruf
         if (!found && i + 1 <= word.length) {
           String substr = word.substring(i, i + 1);
-          if (latinToHanacarakaMap.containsKey(substr)) {
-            result += latinToHanacarakaMap[substr]!;
+          if (_latinToJavaMap.containsKey(substr)) {
+            // <-- Gunakan peta dinamis
+            result += _latinToJavaMap[substr]!;
             i += 1;
             found = true;
           }

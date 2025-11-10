@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/models/aksara_model.dart';
 import 'package:hanacaraka_app/data/writing_steps_data.dart';
 import 'package:hanacaraka_app/widgets/guided_writing_canvas.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
 // Diterjemahkan dari WritingCanvas.tsx
 class WritingCanvasScreen extends StatefulWidget {
-  final HanacarakaChar character;
+  final AksaraModel character;
   const WritingCanvasScreen({Key? key, required this.character})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<WritingCanvasScreen> createState() => _WritingCanvasScreenState();
@@ -23,7 +23,7 @@ class _WritingCanvasScreenState extends State<WritingCanvasScreen> {
   @override
   void initState() {
     super.initState();
-    _writingSteps = getWritingSteps(widget.character.char);
+    _writingSteps = getWritingSteps(widget.character.aksara);
     // Jika tidak ada langkah terpandu, langsung ke mode bebas
     if (_writingSteps.length <= 1) {
       _mode = 'free';
@@ -129,11 +129,9 @@ class _WritingCanvasScreenState extends State<WritingCanvasScreen> {
         // Tampilkan Canvas yang sesuai
         if (_mode == 'guided' && _writingSteps.length > 1)
           GuidedWritingCanvas(
-            key: ValueKey(
-              widget.character.char,
-            ), // Reset state saat char berubah
-            targetChar: widget.character.char,
-            targetLatin: widget.character.latin,
+            key: ValueKey(widget.character.aksara), // <-- Ganti dari .char
+            targetChar: widget.character.aksara, // <-- Ganti dari .char
+            targetLatin: widget.character.namaLatin, // <-- Ganti dari .latin
             writingSteps: _writingSteps,
           )
         else
@@ -150,7 +148,7 @@ class _WritingCanvasScreenState extends State<WritingCanvasScreen> {
         child: Column(
           children: [
             Text(
-              'Tulis huruf: ${widget.character.char} (${widget.character.latin})',
+              'Tulis huruf: ${widget.character.aksara} (${widget.character.namaLatin})',
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -162,7 +160,7 @@ class _WritingCanvasScreenState extends State<WritingCanvasScreen> {
               ),
               child: FreeWritingCanvas(
                 controller: _freeCanvasController,
-                targetChar: widget.character.char,
+                targetChar: widget.character.aksara,
               ),
             ),
             const SizedBox(height: 12),

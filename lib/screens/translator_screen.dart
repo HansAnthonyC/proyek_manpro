@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hanacaraka_app/services/data_service.dart'; // <-- 1. TAMBAHKAN IMPORT
 import 'package:hanacaraka_app/services/translator_service.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart'; // <-- 2. TAMBAHKAN IMPORT
 
 // Diterjemahkan dari GoogleTranslateStyle.tsx
 class TranslatorScreen extends StatefulWidget {
@@ -15,7 +17,21 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   final TextEditingController _sourceController = TextEditingController();
   String _targetText = '';
   bool _isLatinToJava = true;
-  final TranslatorService _translator = TranslatorService();
+
+  // --- PERBAIKAN UTAMA ADA DI SINI ---
+  late TranslatorService _translator; // 3. Buat jadi 'late final'
+  // final TranslatorService _translator = TranslatorService(); // <-- HAPUS BARIS INI
+
+  @override
+  void initState() {
+    super.initState();
+    // 4. Inisialisasi _translator di dalam initState menggunakan Provider
+    // Ini aman karena context sudah tersedia di sini.
+    final dataService = Provider.of<DataService>(context, listen: false);
+    _translator =
+        TranslatorService(dataService); // Oper DataService ke constructor
+  }
+  // --- AKHIR PERBAIKAN ---
 
   void _handleTranslate() {
     final text = _sourceController.text;
@@ -205,9 +221,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     final theme = Theme.of(context);
     return Chip(
       label: Text(label, style: TextStyle(fontFamily: 'Javanese')),
-      backgroundColor: isActive
-          ? theme.primaryColor
-          : theme.colorScheme.secondary,
+      backgroundColor:
+          isActive ? theme.primaryColor : theme.colorScheme.secondary,
       labelStyle: TextStyle(
         color: isActive
             ? theme.colorScheme.onPrimary

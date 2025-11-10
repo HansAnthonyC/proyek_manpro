@@ -3,26 +3,38 @@ import 'package:flutter/services.dart';
 import 'package:hanacaraka_app/app.dart';
 import 'package:hanacaraka_app/app_state.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+// import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+import 'package:hanacaraka_app/services/data_service.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Mengatur warna status bar agar sesuai tema
+void main() async {
+  // <-- UBAH JADI ASYNC
+  WidgetsFlutterBinding.ensureInitialized(); // <-- TAMBAHKAN INI
+
+  // Buat instance DataService
+  final dataService = DataService();
+  // Panggil fungsi loadData dan tunggu sampai selesai
+  await dataService.loadData(); // <-- TAMBAHKAN INI
+
+  // Mengatur warna status bar (kode Anda sebelumnya)
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent, // Membuat status bar transparan
-    statusBarIconBrightness: Brightness
-        .dark, // Untuk ikon (jam, baterai) agar terlihat di latar terang
-    statusBarBrightness: Brightness.light, // Untuk iOS, agar teksnya gelap
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
   ));
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor:
-        Colors.white, // Sesuaikan dengan warna nav bar Anda
+    systemNavigationBarColor: Colors.white,
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => AppState(),
+    // Kita butuh 2 provider: 1 untuk AppState, 1 untuk DataService
+    MultiProvider(
+      // <-- GUNAKAN MULTIPROVIDER
+      providers: [
+        ChangeNotifierProvider(create: (context) => AppState()),
+        ChangeNotifierProvider.value(
+            value: dataService), // <-- SEDIAKAN DATA SERVICE
+      ],
       child: const MyApp(),
     ),
   );
