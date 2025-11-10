@@ -1,30 +1,36 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/data/hanacaraka_data.dart'; // Masih perlu untuk categoryNames
+import 'package:hanacaraka_app/models/aksara_model.dart'; // <-- TAMBAHKAN INI
+import 'package:hanacaraka_app/services/data_service.dart'; // <-- TAMBAHKAN INI
 import 'package:hanacaraka_app/utils/category_colors.dart';
 import 'package:hanacaraka_app/widgets/chat_bubble.dart';
+import 'package:provider/provider.dart'; // <-- TAMBAHKAN INI
 
-// Diterjemahkan dari MainMenu.tsx
 class MainMenuScreen extends StatefulWidget {
-  final Function(HanacarakaChar) onCharacterSelect;
+  final Function(AksaraModel)
+      onCharacterSelect; // <-- Ganti dari HanacarakaChar
 
   const MainMenuScreen({Key? key, required this.onCharacterSelect})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<MainMenuScreen> createState() => _MainMenuScreenState();
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
-  List<HanacarakaChar> _randomChars = [];
+  List<AksaraModel> _randomChars = []; // <-- Ganti dari HanacarakaChar
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _updateRandomChars();
-    // Ganti aksara setiap 10 detik
+    // Kita perlu 'context' untuk Provider, jadi panggil di post frame callback
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateRandomChars();
+    });
+
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _updateRandomChars();
     });
@@ -37,12 +43,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   void _updateRandomChars() {
-    final shuffled = [...allHanacarakaChars]
-      ..removeWhere((c) => c.category == 'pasangan')
-      ..shuffle(Random());
-    setState(() {
-      _randomChars = shuffled.take(8).toList();
-    });
+    if (!mounted) return;
+
+    // Pastikan context masih valid sebelum digunakan
+    try {
+      final allAksara = context.read<DataService>().allAksara;
+      if (allAksara.isEmpty)
+        return; // Jangan lakukan apa-apa jika data belum siap
+
+      final shuffled = [...allAksara]
+        ..removeWhere((c) => c.kategori == 'pasangan')
+        ..shuffle(Random());
+
+      setState(() {
+        // --- UBAH 8 MENJADI 10 ---
+        _randomChars = shuffled.take(10).toList();
+      });
+    } catch (e) {
+      // Menangkap error jika context/provider tidak tersedia
+      print("Error updating random chars: $e");
+    }
   }
 
   @override
@@ -91,11 +111,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 ),
                 const SizedBox(height: 16),
                 GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _randomChars.length,
+                  shrinkWrap: true, // Wajib untuk GridView di dalam ListView
+                  physics: const NeverScrollableScrollPhysics(), // Wajib
+                  itemCount:
+                      _randomChars.length, // Ini akan 10 (atau 0 saat loading)
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                    crossAxisCount: 2, // 2 kolom
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                     childAspectRatio: 1.2,
@@ -141,8 +162,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 
-  Widget _buildAksaraCard(BuildContext context, HanacarakaChar char) {
-    final colors = getCategoryColors(char.category);
+  Widget _buildAksaraCard(BuildContext context, AksaraModel char) {
+    final colors = getCategoryColors(char.kategori);
     final theme = Theme.of(context);
 
     return InkWell(
@@ -158,7 +179,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              char.char,
+              char.aksara,
               style: TextStyle(
                 color: colors.main,
                 fontSize: 36,
@@ -167,13 +188,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              char.latin,
+              char.namaLatin,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              categoryNames[char.category] ?? char.category,
+              categoryNames[char.kategori] ??
+                  char.kategori, // <-- Gunakan fallback
               style: TextStyle(
                 color: colors.main.withOpacity(0.7),
                 fontSize: 10,

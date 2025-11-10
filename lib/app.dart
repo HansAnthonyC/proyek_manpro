@@ -1,13 +1,12 @@
-// app.dart (MODIFIKASI: Tambahkan SafeArea)
 import 'package:flutter/material.dart';
 import 'package:hanacaraka_app/app_state.dart';
-import 'package:hanacaraka_app/data/hanacaraka_data.dart';
 import 'package:hanacaraka_app/screens/category_menu_screen.dart';
 import 'package:hanacaraka_app/screens/character_detail_screen.dart';
 import 'package:hanacaraka_app/screens/character_grid_screen.dart';
 import 'package:hanacaraka_app/screens/main_menu_screen.dart';
 import 'package:hanacaraka_app/screens/translator_screen.dart';
 import 'package:hanacaraka_app/screens/writing_canvas_screen.dart';
+import 'package:hanacaraka_app/services/data_service.dart';
 import 'package:hanacaraka_app/widgets/bottom_navigation.dart';
 import 'package:hanacaraka_app/widgets/javanese_header.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +17,7 @@ class HanacarakaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final dataService = Provider.of<DataService>(context, listen: false);
 
     // Bungkus Scaffold dengan SafeArea
     return SafeArea(
@@ -35,7 +35,7 @@ class HanacarakaApp extends StatelessWidget {
         ),
 
         // Konten Layar (renderScreen())
-        body: _renderScreen(appState),
+        body: _renderScreen(appState, dataService),
 
         // Navigasi Bawah
         // Pastikan BottomNavigation TIDAK punya padding bottom manual lagi
@@ -49,7 +49,8 @@ class HanacarakaApp extends StatelessWidget {
   }
 
   // Logic renderScreen() dari App.tsx (Tidak berubah)
-  Widget _renderScreen(AppState appState) {
+  Widget _renderScreen(AppState appState, DataService dataService) {
+    // <-- UBAH DI SINI
     switch (appState.currentScreen) {
       case Screen.main:
         return MainMenuScreen(
@@ -63,26 +64,26 @@ class HanacarakaApp extends StatelessWidget {
         );
       case Screen.learnCharacters:
       case Screen.writeCharacters:
-        final characters = allHanacarakaChars
-            .where((c) => c.category == appState.selectedCategory)
-            .toList();
+        // --- GANTI LOGIKA PENGAMBILAN DATA ---
+        final characters = dataService
+            .getAksaraByCategory(appState.selectedCategory); // <-- GANTI INI
+        // ------------------------------------
         return CharacterGridScreen(
           category: appState.selectedCategory,
-          characters: characters,
+          characters:
+              characters, // characters sekarang bertipe List<AksaraModel>
           onCharacterSelect: appState.handleCharacterSelect,
         );
       case Screen.learnDetail:
-        // Tambah null check untuk keamanan
         return appState.selectedCharacter != null
             ? CharacterDetailScreen(character: appState.selectedCharacter!)
             : const Center(child: Text("Karakter tidak ditemukan"));
       case Screen.writeCanvas:
-        // Tambah null check untuk keamanan
         return appState.selectedCharacter != null
             ? WritingCanvasScreen(character: appState.selectedCharacter!)
             : const Center(child: Text("Karakter tidak ditemukan"));
       case Screen.translate:
-        return const TranslatorScreen(); // Pastikan const jika widgetnya stateless
+        return TranslatorScreen(); // Hapus const jika TranslatorScreen adalah StatefulWidget
       default:
         return MainMenuScreen(
           onCharacterSelect: (char) =>

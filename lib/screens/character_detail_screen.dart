@@ -1,46 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+// import 'package:flutter_tts/flutter_tts.dart'; // <-- 1. HAPUS IMPORT INI
+import 'package:audioplayers/audioplayers.dart'; // <-- 2. TAMBAHKAN IMPORT INI
 import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/models/aksara_model.dart';
+import 'package:hanacaraka_app/models/contoh_penggunaan_model.dart';
+import 'package:hanacaraka_app/services/data_service.dart';
 import 'package:hanacaraka_app/utils/category_colors.dart';
 import 'package:hanacaraka_app/widgets/example_with_voice.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:provider/provider.dart';
 
-// Diterjemahkan dari CharacterDetail.tsx
 class CharacterDetailScreen extends StatefulWidget {
-  final HanacarakaChar character;
+  final AksaraModel character; // <-- Ganti dari HanacarakaChar
   const CharacterDetailScreen({Key? key, required this.character})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<CharacterDetailScreen> createState() => _CharacterDetailScreenState();
 }
 
 class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
-  FlutterTts flutterTts = FlutterTts();
+  final AudioPlayer _mainAudioPlayer = AudioPlayer();
+  List<ContohPenggunaanModel> _examples = [];
 
   @override
   void initState() {
     super.initState();
-    _initTts();
-  }
 
-  Future<void> _initTts() async {
-    await flutterTts.setLanguage("id-ID");
-    await flutterTts.setSpeechRate(0.5);
-    await flutterTts.setPitch(1.1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final dataService = Provider.of<DataService>(context, listen: false);
+      setState(() {
+        _examples = dataService.getContohForAksara(widget.character.id);
+      });
+    });
   }
 
   void _playPronunciation() {
-    if (widget.character.pronunciation.isNotEmpty) {
-      flutterTts.speak(widget.character.pronunciation);
+    final audioPath = widget.character.pathAudio;
+
+    if (audioPath.isNotEmpty) {
+      _mainAudioPlayer.play(AssetSource("audio/$audioPath"));
     }
+  }
+
+  @override
+  void dispose() {
+    _mainAudioPlayer.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final categoryName = categoryNames[widget.character.category]!;
-    final colors = getCategoryColors(widget.character.category);
+    final categoryName =
+        categoryNames[widget.character.kategori] ?? widget.character.kategori;
+    final colors = getCategoryColors(widget.character.kategori);
 
     return ListView(
       padding: const EdgeInsets.all(16.0),
@@ -52,7 +66,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
             child: Column(
               children: [
                 Text(
-                  widget.character.char,
+                  widget.character.aksara,
                   style: TextStyle(
                     fontSize: 80,
                     fontFamily: 'Javanese',
@@ -61,7 +75,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  widget.character.latin,
+                  widget.character.namaLatin,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     color: colors.main,
                   ),
@@ -77,7 +91,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                       side: BorderSide(color: colors.border),
                     ),
                     const SizedBox(width: 8),
-                    if (widget.character.pronunciation.isNotEmpty)
+                    if (widget.character.pathAudio.isNotEmpty)
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.light,
@@ -87,7 +101,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                         ),
                         onPressed: _playPronunciation,
                         icon: const Icon(LucideIcons.volume2, size: 16),
-                        label: Text('[${widget.character.pronunciation}]'),
+                        label: Text('[${widget.character.namaLatin}]'),
                       ),
                   ],
                 ),
@@ -98,7 +112,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
         const SizedBox(height: 16),
 
         // Kartu Deskripsi
-        if (widget.character.description != null)
+        if (widget.character.deskripsi.isNotEmpty)
           Card(
             color: colors.light,
             child: Padding(
@@ -120,7 +134,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.character.description!,
+                          widget.character.deskripsi,
                           style: TextStyle(
                             color: theme.textTheme.bodyMedium?.color
                                 ?.withOpacity(0.8),
@@ -136,33 +150,20 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
           ),
         const SizedBox(height: 16),
 
-        // Kartu Contoh Penggunaan
-        if (widget.character.examples != null &&
-            widget.character.examples!.isNotEmpty)
-          ExampleWithVoice(examples: widget.character.examples!)
-        else if (widget.character.example != null)
+        if (_examples.isNotEmpty)
+          // Anda perlu memodifikasi ExampleWithVoice untuk menerima List<ContohPenggunaanModel>
+          // Untuk sementara, kita tampilkan placeholder:
+          ExampleWithVoice(examples: _examples)
+        else
+          // Tampilkan 'example' placeholder jika ada
           Card(
             color: colors.light,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Text(
-                    'Contoh Penggunaan',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: colors.main,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.character.example!,
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontFamily: 'Javanese',
-                      color: colors.main,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Contoh penggunaan tidak tersedia.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: colors.main),
               ),
             ),
           ),
@@ -185,6 +186,46 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ExampleWithVoicePlaceholder extends StatelessWidget {
+  final List<ContohPenggunaanModel> examples;
+  final CategoryColorSet colors;
+  const ExampleWithVoicePlaceholder(
+      {Key? key, required this.examples, required this.colors})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      color: theme.primaryColor.withOpacity(0.1),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              "Contoh Penggunaan",
+              style: TextStyle(
+                  color: theme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            ...examples.map((ex) => Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    title: Text(ex.contohAksaraJawa,
+                        style: TextStyle(fontFamily: 'Javanese', fontSize: 20)),
+                    subtitle: Text("${ex.tulisanLatin} (${ex.arti})"),
+                    trailing: Icon(LucideIcons.volume2, color: colors.main),
+                  ),
+                )),
+          ],
+        ),
+      ),
     );
   }
 }

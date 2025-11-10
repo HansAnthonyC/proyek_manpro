@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/data/hanacaraka_data.dart'; // Masih perlu untuk categoryNames
+import 'package:hanacaraka_app/models/aksara_model.dart'; // <-- TAMBAHKAN INI
 import 'package:hanacaraka_app/utils/category_colors.dart';
 
 // Diterjemahkan dari CharacterGrid.tsx
 class CharacterGridScreen extends StatelessWidget {
   final String category;
-  final List<HanacarakaChar> characters;
-  final Function(HanacarakaChar) onCharacterSelect;
+  final List<AksaraModel> characters; // <-- Ganti dari HanacarakaChar
+  final Function(AksaraModel) onCharacterSelect;
 
   const CharacterGridScreen({
     Key? key,
@@ -19,9 +20,18 @@ class CharacterGridScreen extends StatelessWidget {
     const info = {
       'nglegena':
           'Aksara nglegena adalah huruf dasar dalam penulisan Jawa. Setiap huruf memiliki bunyi konsonan + vokal a.',
+      'pasangan':
+          'Pasangan adalah bentuk konsonan yang digunakan untuk menutup suku kata tanpa vokal a.',
+      'sandhangan':
+          'Sandhangan adalah tanda yang digunakan untuk mengubah bunyi vokal atau menambah konsonan akhir.',
       'murda':
           'Aksara murda digunakan untuk menulis nama orang, tempat, atau hal-hal yang dianggap terhormat.',
-      // ... tambahkan info lainnya ...
+      'rekan':
+          'Aksara rekan adalah huruf tambahan untuk menulis kata-kata asing yang tidak ada dalam bahasa Jawa.',
+      'swara':
+          'Aksara swara adalah huruf vokal yang dapat berdiri sendiri tanpa konsonan.',
+      'wilangan':
+          'Wilangan adalah angka dalam sistem penulisan Jawa, dari 0 hingga 9.',
     };
     return info[category] ?? '';
   }
@@ -29,7 +39,7 @@ class CharacterGridScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final categoryName = categoryNames[category]!;
+    final categoryName = categoryNames[category] ?? category;
     final colors = getCategoryColors(category);
 
     return ListView(
@@ -74,7 +84,7 @@ class CharacterGridScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      char.char,
+                      char.aksara,
                       style: TextStyle(
                         fontSize: 32,
                         fontFamily: 'Javanese',
@@ -83,7 +93,7 @@ class CharacterGridScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      char.latin,
+                      char.namaLatin,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,

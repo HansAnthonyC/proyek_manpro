@@ -1,7 +1,8 @@
-// screens/category_menu_screen.dart (MODIFIKASI v3: Atasi Tumpukan)
 import 'package:flutter/material.dart';
 import 'package:hanacaraka_app/data/hanacaraka_data.dart';
+import 'package:hanacaraka_app/services/data_service.dart'; // Pastikan import ini ada
 import 'package:hanacaraka_app/utils/category_colors.dart';
+import 'package:provider/provider.dart';
 
 class CategoryMenuScreen extends StatelessWidget {
   final Function(String) onCategorySelect;
@@ -20,7 +21,8 @@ class CategoryMenuScreen extends StatelessWidget {
       'wilangan': 'Angka Jawa (0 sampai 9)',
       'pasangan': 'Konsonan penutup suku kata'
     };
-    return descriptions[category] ?? '';
+    // Gunakan fallback di sini juga untuk keamanan
+    return descriptions[category] ?? 'Deskripsi untuk $category';
   }
 
   String getCategoryIcon(String category) {
@@ -39,7 +41,9 @@ class CategoryMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final categories = categoryNames.keys.toList();
+    // listen: true sudah benar
+    final dataService = Provider.of<DataService>(context);
+    final categories = dataService.kategoriKeys;
 
     return ListView(
       // Gunakan ListView
@@ -70,10 +74,14 @@ class CategoryMenuScreen extends StatelessWidget {
         // --- Daftar Kartu Kategori ---
         ...categories.map((category) {
           // Gunakan map langsung di children ListView
-          final categoryName = categoryNames[category]!;
+
+          // --- PERBAIKAN UTAMA DI SINI ---
+          // Gunakan fallback '?? category' untuk mencegah crash
+          final categoryName = categoryNames[category] ?? category;
+          // ------------------------------
+
           final colors = getCategoryColors(category);
-          final charCount =
-              allHanacarakaChars.where((c) => c.category == category).length;
+          final charCount = dataService.getAksaraByCategory(category).length;
           final iconChar = getCategoryIcon(category);
 
           return Card(
@@ -100,8 +108,8 @@ class CategoryMenuScreen extends StatelessWidget {
                     // Dibungkus Padding agar tidak terlalu mepet ke ikon bawah
                     Padding(
                       padding: const EdgeInsets.only(
-                          bottom: 60.0,
-                          right: 30.0), // Beri ruang bawah & kanan
+                          bottom: 40.0, // Beri ruang bawah (sebelumnya 60)
+                          right: 30.0), // Beri ruang kanan
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -115,7 +123,8 @@ class CategoryMenuScreen extends StatelessWidget {
                                   categoryName,
                                   style: theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: theme.colorScheme.onBackground),
+                                      color: colors.main // Warna dari kategori
+                                      ),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -141,7 +150,7 @@ class CategoryMenuScreen extends StatelessWidget {
                               color: theme.textTheme.bodyMedium?.color
                                   ?.withOpacity(0.7),
                               fontSize: 13, // Sedikit lebih kecil
-                              height: 2, // Jarak antar baris
+                              height: 1.4, // Jarak antar baris (sebelumnya 2)
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -167,13 +176,12 @@ class CategoryMenuScreen extends StatelessWidget {
 
                     // Ikon Aksara Background (Kanan Bawah)
                     Positioned(
-                      right:
-                          30, // Geser sedikit ke kiri agar tidak terlalu keluar
-                      bottom: -10, // Geser sedikit ke atas
+                      right: 5, // Geser sedikit ke kiri
+                      bottom: -5, // Geser sedikit ke atas
                       child: Text(
                         iconChar,
                         style: TextStyle(
-                          fontSize: 50, // Kecilkan sedikit
+                          fontSize: 65, // Kecilkan sedikit
                           fontFamily: 'Javanese', // Pastikan font aktif
                           color: colors.main
                               .withOpacity(0.08), // Sangat transparan
@@ -187,8 +195,8 @@ class CategoryMenuScreen extends StatelessWidget {
                       bottom: 0,
                       child: Icon(
                         Icons.chevron_right, // Ikon panah > sederhana
-                        color: theme.textTheme.bodyMedium?.color
-                            ?.withOpacity(0.4), // Warna abu-abu
+                        color:
+                            colors.main.withOpacity(0.7), // Warna dari kategori
                         size: 28, // Ukuran ikon
                       ),
                     ),
