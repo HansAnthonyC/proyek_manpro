@@ -11,7 +11,8 @@ import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class CharacterDetailScreen extends StatefulWidget {
-  final AksaraModel character; // <-- Ganti dari HanacarakaChar
+  final AksaraModel character;
+
   const CharacterDetailScreen({Key? key, required this.character})
       : super(key: key);
 
@@ -26,20 +27,21 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final dataService = Provider.of<DataService>(context, listen: false);
       setState(() {
-        _examples = dataService.getContohForAksara(widget.character.id);
+        // FIX: Menggunakan ID (int) sesuai tipe data di model
+        _examples =
+            dataService.getContohForAksara(int.parse(widget.character.id));
       });
     });
   }
 
-  void _playPronunciation() {
+  void _playPronunciation() async {
     final audioPath = widget.character.pathAudio;
-
     if (audioPath.isNotEmpty) {
-      _mainAudioPlayer.play(AssetSource("audio/$audioPath"));
+      await _mainAudioPlayer.stop();
+      await _mainAudioPlayer.play(AssetSource("audio/$audioPath"));
     }
   }
 
@@ -59,8 +61,12 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Kartu Karakter Utama
+        // --- Kartu Karakter Utama ---
         Card(
+          elevation: 4,
+          shadowColor: colors.main.withOpacity(0.3),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -69,7 +75,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                   widget.character.aksara,
                   style: TextStyle(
                     fontSize: 80,
-                    fontFamily: 'Javanese',
+                    fontFamily: 'TuladhaJejeg', // Pastikan font benar
                     color: colors.main,
                   ),
                 ),
@@ -77,6 +83,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                 Text(
                   widget.character.namaLatin,
                   style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
                     color: colors.main,
                   ),
                 ),
@@ -101,7 +108,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                         ),
                         onPressed: _playPronunciation,
                         icon: const Icon(LucideIcons.volume2, size: 16),
-                        label: Text('[${widget.character.namaLatin}]'),
+                        label: Text('Dengar'),
                       ),
                   ],
                 ),
@@ -111,10 +118,15 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Kartu Deskripsi
+        // --- Kartu Penjelasan ---
         if (widget.character.deskripsi.isNotEmpty)
           Card(
-            color: colors.light,
+            color: Colors.white,
+            surfaceTintColor: colors.light,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: colors.border.withOpacity(0.5)),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -130,14 +142,14 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                           'Penjelasan',
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: colors.main,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           widget.character.deskripsi,
                           style: TextStyle(
-                            color: theme.textTheme.bodyMedium?.color
-                                ?.withOpacity(0.8),
+                            color: Colors.black87,
                             height: 1.5,
                           ),
                         ),
@@ -148,84 +160,68 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
               ),
             ),
           ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+
+        // --- Bagian Contoh Penggunaan (FIX ERROR DISINI) ---
+        Text(
+          "Contoh Penggunaan",
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
 
         if (_examples.isNotEmpty)
-          // Anda perlu memodifikasi ExampleWithVoice untuk menerima List<ContohPenggunaanModel>
-          // Untuk sementara, kita tampilkan placeholder:
-          ExampleWithVoice(examples: _examples)
+          // FIX: Kita melakukan looping (map) untuk membuat widget bagi SETIAP item
+          Column(
+            children:
+                _examples.map((ex) => ExampleWithVoice(example: ex)).toList(),
+          )
         else
-          // Tampilkan 'example' placeholder jika ada
           Card(
-            color: colors.light,
+            color: theme.colorScheme.surface,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Contoh penggunaan tidak tersedia.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: colors.main),
+              child: Center(
+                child: Text(
+                  'Contoh penggunaan belum tersedia.',
+                  style: TextStyle(color: colors.main),
+                ),
               ),
             ),
           ),
         const SizedBox(height: 16),
 
-        // Kartu Tips Belajar
+        // --- Kartu Tips ---
         Card(
-          color: theme.primaryColor.withOpacity(0.1),
+          color: theme.primaryColor.withOpacity(0.05),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: theme.primaryColor.withOpacity(0.1))),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Untuk berlatih menulis aksara ini, gunakan tab "Latih" di menu bawah. Pelajari bentuk dan cara penulisannya dengan seksama.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
-                fontSize: 14,
-                height: 1.5,
-              ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.info,
+                    size: 20, color: theme.primaryColor.withOpacity(0.7)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Gunakan tab "Latih" untuk belajar menulis aksara ini.',
+                    style: TextStyle(
+                      color:
+                          theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class ExampleWithVoicePlaceholder extends StatelessWidget {
-  final List<ContohPenggunaanModel> examples;
-  final CategoryColorSet colors;
-  const ExampleWithVoicePlaceholder(
-      {Key? key, required this.examples, required this.colors})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      color: theme.primaryColor.withOpacity(0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              "Contoh Penggunaan",
-              style: TextStyle(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            ...examples.map((ex) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    title: Text(ex.contohAksaraJawa,
-                        style: TextStyle(fontFamily: 'Javanese', fontSize: 20)),
-                    subtitle: Text("${ex.tulisanLatin} (${ex.arti})"),
-                    trailing: Icon(LucideIcons.volume2, color: colors.main),
-                  ),
-                )),
-          ],
-        ),
-      ),
     );
   }
 }
