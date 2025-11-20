@@ -1,360 +1,250 @@
-// lib/widgets/example_with_voice.dart (KODE LENGKAP DIPERBAIKI)
 import 'dart:async';
-import 'dart:convert'; // Untuk jsonDecode
-import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:characters/characters.dart'; // Untuk split aksara
-import 'package:provider/provider.dart';
-import 'package:hanacaraka_app/models/contoh_penggunaan_model.dart';
-import 'package:hanacaraka_app/services/data_service.dart';
-import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:characters/characters.dart';
+import '../models/contoh_penggunaan_model.dart';
 
 class ExampleWithVoice extends StatefulWidget {
-  final List<ContohPenggunaanModel> examples;
-  const ExampleWithVoice({Key? key, required this.examples}) : super(key: key);
+  final ContohPenggunaanModel example;
+
+  const ExampleWithVoice({super.key, required this.example});
 
   @override
   State<ExampleWithVoice> createState() => _ExampleWithVoiceState();
 }
 
 class _ExampleWithVoiceState extends State<ExampleWithVoice> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  late AudioPlayer _audioPlayer;
+  PlayerState _playerState = PlayerState.stopped;
+  int _currentSyllableIndex = -1;
   StreamSubscription? _positionSubscription;
-  String? _playingExampleId;
-  int _highlightIndex = -1; // Indeks suku kata yang di-highlight (0, 1, 2, ...)
-  String _highlightName = ""; // Nama Latin dari suku kata ("Ha", "Pa", dll)
-  late Map<String, String> _javaToLatinMap;
-
-  // Daftar suku kata (tanpa spasi) yang akan di-highlight
-  List<String> _parsedSyllables = [];
-  List<Map<String, dynamic>> _parsedTimestamps = [];
-  bool _canHighlight = false;
+  StreamSubscription? _stateSubscription;
 
   @override
   void initState() {
     super.initState();
-    _javaToLatinMap = context.read<DataService>().javaToLatinMap;
+    _audioPlayer = AudioPlayer();
 
-    _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (state == PlayerState.completed) {
-        if (mounted) {
-          setState(() {
-            _playingExampleId = null;
-            _highlightIndex = -1;
-            _highlightName = "";
-            _positionSubscription?.cancel();
-          });
-        }
+    _stateSubscription = _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _playerState = state;
+          if (state == PlayerState.completed || state == PlayerState.stopped) {
+            _currentSyllableIndex = -1;
+          }
+        });
+      }
+    });
+
+    _positionSubscription = _audioPlayer.onPositionChanged.listen((position) {
+      if (mounted) {
+        double currentSeconds = position.inMilliseconds / 1000.0;
+        _updateHighlight(currentSeconds);
       }
     });
   }
 
+  void _updateHighlight(double currentSeconds) {
+    int newIndex = -1;
+    for (int i = 0; i < widget.example.timestamps.length; i++) {
+      double start = widget.example.timestamps[i].start;
+
+      // Logika "Sticky Highlight" untuk mencegah jeda hitam
+      double endBoundary;
+      if (i < widget.example.timestamps.length - 1) {
+        endBoundary = widget.example.timestamps[i + 1].start;
+      } else {
+        endBoundary = widget.example.timestamps[i].end + 0.5;
+      }
+
+      if (currentSeconds >= start && currentSeconds < endBoundary) {
+        newIndex = i;
+        break;
+      }
+    }
+
+    if (newIndex != _currentSyllableIndex) {
+      setState(() {
+        _currentSyllableIndex = newIndex;
+      });
+    }
+  }
+
+  Future<void> _playAudio() async {
+    if (_playerState == PlayerState.playing) {
+      await _audioPlayer.stop();
+    } else {
+      await _audioPlayer.setPlaybackRate(0.5);
+      await _audioPlayer.play(AssetSource('audio/${widget.example.audioPath}'));
+    }
+  }
+
   @override
   void dispose() {
-    _audioPlayer.dispose();
     _positionSubscription?.cancel();
+    _stateSubscription?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
-  // --- 1. FUNGSI BARU: Mem-parse string Jawa menjadi suku kata (tanpa spasi) ---
-  List<String> _splitJavaneseSyllables(String javaneseText) {
-    // "ꦲꦤ ꦲꦥ" -> ["ꦲ", "ꦤ", "ꦲ", "ꦥ"]
-    // "ꦲꦶꦏꦶ ꦲꦺꦴꦩꦃꦏꦸ" -> ["ꦲꦶ", "ꦏꦶ", "ꦲꦺꦴ", "ꦩꦃ", "ꦏꦸ"]
-    return javaneseText.characters
-        .where((c) => c != ' ') // Filter/hapus spasi
-        .map((c) => c.toString())
-        .toList();
-  }
-  // --- AKHIR FUNGSI BARU ---
-
-  List<Map<String, dynamic>> _parseTimestampData(String timestampJson) {
-    if (timestampJson.isEmpty || timestampJson.toLowerCase() == 'na') {
-      return [];
-    }
-    try {
-      final List<dynamic> parsed = jsonDecode(timestampJson);
-      return List<Map<String, dynamic>>.from(parsed);
-    } catch (e) {
-      List<double> times = timestampJson
-          .split(' ')
-          .map((t) => double.tryParse(t))
-          .where((t) => t != null && t > 0)
-          .cast<double>()
-          .toList();
-
-      List<Map<String, dynamic>> generatedData = [];
-      double lastTime = 0.0;
-      for (var time in times) {
-        generatedData.add({"start": lastTime, "end": time});
-        lastTime = time;
-      }
-      return generatedData;
-    }
-  }
-
-  void _stopAudio() {
-    _audioPlayer.stop();
-    _positionSubscription?.cancel();
-    if (mounted) {
-      setState(() {
-        _playingExampleId = null;
-        _highlightIndex = -1;
-        _highlightName = "";
-      });
-    }
-  }
-
-  void _playAudio(ContohPenggunaanModel example) async {
-    if (_playingExampleId == example.contohId) {
-      _stopAudio();
-      return;
-    }
-    _stopAudio();
-    if (example.pathAudio.isEmpty) {
-      print("Path audio kosong.");
-      return;
-    }
-
-    _parsedTimestamps = _parseTimestampData(example.timestampData);
-    // --- 2. GUNAKAN FUNGSI BARU ---
-    _parsedSyllables = _splitJavaneseSyllables(example.contohAksaraJawa);
-    // ----------------------------
-
-    // Pastikan jumlah timestamp cocok dengan jumlah suku kata
-    _canHighlight = _parsedTimestamps.isNotEmpty &&
-        _parsedSyllables.isNotEmpty &&
-        _parsedTimestamps.length == _parsedSyllables.length;
-
-    if (mounted) {
-      setState(() {
-        _playingExampleId = example.contohId;
-        _highlightIndex = -1;
-        _highlightName = "";
-      });
-    }
-
-    if (_canHighlight) {
-      _positionSubscription = _audioPlayer.onPositionChanged.listen((duration) {
-        double currentSeconds = duration.inMilliseconds / 1000.0;
-        int newIndex = -1;
-        for (int i = 0; i < _parsedTimestamps.length; i++) {
-          final double start = _parsedTimestamps[i]['start'] ?? 0.0;
-          final double end = _parsedTimestamps[i]['end'] ?? 0.0;
-          if (currentSeconds >= start && currentSeconds < end) {
-            newIndex = i;
-            break;
-          }
-        }
-
-        // --- 3. PERBAIKI LOGIKA HIGHLIGHT ---
-        if (newIndex != _highlightIndex && newIndex < _parsedSyllables.length) {
-          // Ambil suku kata (misal: "ꦏꦸ")
-          String syllable = _parsedSyllables[newIndex];
-          // Ambil karakter dasar (misal: "ꦏ")
-          String baseChar = syllable.characters.first;
-          // Cari nama latin (misal: "ka")
-          String charName = _javaToLatinMap[baseChar] ?? "";
-
-          if (mounted) {
-            setState(() {
-              _highlightIndex = newIndex;
-              // Ubah "ka" -> "Ka"
-              _highlightName = charName.isNotEmpty
-                  ? (charName[0].toUpperCase() + charName.substring(1))
-                  : "";
-            });
-          }
-        }
-        // --- AKHIR PERBAIKAN ---
-      });
-    } else {
-      _positionSubscription?.cancel();
-    }
-
-    try {
-      await _audioPlayer.play(AssetSource('audio/${example.pathAudio}'));
-    } catch (e) {
-      print("Error memutar audio: $e");
-      final String fullPath = "assets/audio/${example.pathAudio}";
-      print("GAGAL MEMUAT: $fullPath");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat file audio: $fullPath")),
-      );
-      _stopAudio();
-    }
-  }
-
-  // --- 4. MODIFIKASI TOTAL _buildHighlightableText ---
-  // Sekarang me-return Wrap, bukan RichText
-  Widget _buildHighlightableText(ContohPenggunaanModel example) {
-    final theme = Theme.of(context);
-    bool isPlayingThis = _playingExampleId == example.contohId;
-    bool shouldHighlight = isPlayingThis && _canHighlight;
-
-    // Ambil SEMUA karakter, TERMASUK spasi
-    List<String> allCharacters =
-        example.contohAksaraJawa.characters.map((c) => c.toString()).toList();
-
-    int syllableIndex = -1; // Counter untuk suku kata (non-spasi)
-
-    return Wrap(
-      // Gunakan Wrap agar bisa pindah baris
-      spacing: 4.0, // Spasi horizontal antar widget
-      runSpacing: 2.0, // Spasi vertikal jika pindah baris
-      alignment: WrapAlignment.center, // Pusatkan
-      children: allCharacters.map((char) {
-        // Jika karakter adalah spasi, render spasi
-        if (char == ' ') {
-          return const SizedBox(width: 10);
-        }
-
-        // Jika bukan spasi, ini adalah suku kata
-        syllableIndex++;
-        final int currentSyllableIndex =
-            syllableIndex; // Simpan indeks saat ini
-
-        // Cek apakah suku kata ini yang sedang di-highlight
-        final bool isHighlighted =
-            shouldHighlight && currentSyllableIndex == _highlightIndex;
-
-        return Column(
-          // Widget baru: Kolom berisi Teks dan Chip
-          children: [
-            // 1. Teks Aksara Jawa
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-              decoration: BoxDecoration(
-                color: isHighlighted
-                    ? theme.primaryColor.withOpacity(0.2)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                char,
-                style: TextStyle(
-                  fontFamily: 'Javanese',
-                  fontSize: 28,
-                  color: isHighlighted
-                      ? theme.primaryColor
-                      : theme.colorScheme.onSurface,
-                  fontWeight:
-                      isHighlighted ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ),
-
-            // 2. "Subtitle" Chip (hanya muncul saat di-highlight)
-            AnimatedOpacity(
-              opacity: isHighlighted ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 150),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                height: isHighlighted ? 30.0 : 0.0, // Animasikan tinggi
-                padding: const EdgeInsets.only(top: 4.0),
-                // Jangan tampilkan chip jika nama kosong (mencegah error)
-                child: _highlightName.isEmpty
-                    ? const SizedBox()
-                    : Chip(
-                        label: Text(_highlightName,
-                            style: TextStyle(
-                                color: theme.primaryColor, fontSize: 12)),
-                        backgroundColor: theme.primaryColor.withOpacity(0.1),
-                        avatar: Icon(LucideIcons.mousePointer,
-                            size: 14, color: theme.primaryColor),
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 0),
-                      ),
-              ),
-            ),
-          ],
-        );
-      }).toList(),
-    );
-  }
-  // --- AKHIR MODIFIKASI ---
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      color: theme.primaryColor.withOpacity(0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              "Contoh Penggunaan",
-              style: TextStyle(
-                color: theme.primaryColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ...widget.examples.map((example) {
-              final isPlayingThis = _playingExampleId == example.contohId;
-
-              return Card(
-                color: theme.cardColor.withOpacity(0.8),
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHighlightableText(example),
-                      // Hapus Chip dari sini
-                      const SizedBox(height: 8),
-                      Text(
-                        example.tulisanLatin,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                      Text(
-                        "(${example.arti})",
-                        style: TextStyle(
-                            color: theme.textTheme.bodyMedium?.color
-                                ?.withOpacity(0.7),
-                            fontSize: 12),
-                      ),
-                      const Divider(height: 16),
-                      // --- 5. PERBAIKI ROW BAWAH ---
-                      Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.end, // Tombol ke kanan
-                        children: [
-                          // Hapus AnimatedOpacity/Chip dari sini
-
-                          // Selalu tampilkan tombol play jika ada path audio
-                          if (example.pathAudio.isNotEmpty)
-                            IconButton(
-                              style: IconButton.styleFrom(
-                                backgroundColor:
-                                    theme.primaryColor.withOpacity(0.1),
-                                foregroundColor: theme.primaryColor,
-                              ),
-                              icon: Icon(
-                                isPlayingThis
-                                    ? LucideIcons.pause // Ikon Pause
-                                    : LucideIcons.play,
-                                size: 20,
-                              ),
-                              onPressed: () => _playAudio(example),
-                            ),
-                        ],
-                      ),
-                      // --- AKHIR PERBAIKAN ---
-                    ],
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: _playAudio,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Icon(
+                    _playerState == PlayerState.playing
+                        ? Icons.pause_rounded
+                        : Icons.play_arrow_rounded,
+                    color: Colors.grey.shade700,
+                    size: 24,
                   ),
                 ),
-              );
-            }).toList(),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- Bagian Aksara Jawa dengan Animasi Halus ---
+                    _buildSmoothJavaneseText(),
+
+                    const SizedBox(height: 12), // Jarak sedikit diperlebar
+
+                    Text(
+                      widget.example.latin,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Text(
+                      widget.example.arti,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FUNGSI BARU: Animasi Transisi Warna (AnimatedDefaultTextStyle)
+  Widget _buildSmoothJavaneseText() {
+    List<String> chars = widget.example.contohAksara.characters.toList();
+    List<Widget> combinedWidgets = [];
+
+    int timestampCounter = 0;
+    for (int i = 0; i < chars.length; i++) {
+      String char = chars[i];
+      bool isHighlighted = false;
+      String? currentSubtitle;
+
+      if (char.trim().isNotEmpty) {
+        if (timestampCounter == _currentSyllableIndex) {
+          isHighlighted = true;
+          currentSubtitle =
+              widget.example.timestamps[_currentSyllableIndex].label;
+        }
+        timestampCounter++;
+      }
+
+      combinedWidgets.add(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 1. ANIMASI WARNA AKSARA (Kunci Kehalusan)
+            AnimatedDefaultTextStyle(
+              duration: const Duration(
+                  milliseconds: 300), // Durasi transisi (0.3 detik)
+              curve: Curves.easeInOut, // Kurva animasi agar "flow" enak
+              style: TextStyle(
+                fontFamily: 'TuladhaJejeg',
+                fontSize: 24,
+                // Warna berubah perlahan, bukan kaget
+                color: isHighlighted ? Colors.orange.shade700 : Colors.black87,
+                // SANGAT PENTING: Jangan ubah FontWeight (Bold/Normal) saat animasi
+                // karena akan membuat teks bergeser/getar (layout shift).
+                fontWeight: FontWeight.normal,
+              ),
+              child: Text(char),
+            ),
+
+            // 2. ANIMASI SUBTITLE (Fade In/Out)
+            // Kita gunakan AnimatedOpacity agar munculnya pelan-pelan
+            AnimatedOpacity(
+              opacity: (isHighlighted && currentSubtitle != null) ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                      color: Colors.orange.shade200
+                          .withOpacity(isHighlighted ? 1.0 : 0.0)),
+                ),
+                // Gunakan constrained box atau text agar height tetap terjaga
+                // jika ingin layout tidak naik turun, bisa set minHeight.
+                // Tapi untuk desain ini, naik turun sedikit tidak masalah karena di bawah wrap.
+                child: Text(
+                  currentSubtitle ??
+                      " ", // Spasi kosong agar layout height tetap ada (opsional)
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.orange.shade800,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
-      ),
+      );
+    }
+
+    return Wrap(
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 2, // Jarak horizontal antar huruf dirapatkan sedikit
+      runSpacing: 8, // Jarak vertikal antar baris
+      children: combinedWidgets,
     );
   }
 }

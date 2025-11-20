@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hanacaraka_app/services/data_service.dart'; // <-- 1. TAMBAHKAN IMPORT
-import 'package:hanacaraka_app/services/translator_service.dart';
-import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart'; // <-- 2. TAMBAHKAN IMPORT
+import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:hanacaraka_app/services/translator_service.dart';
 
-// Diterjemahkan dari GoogleTranslateStyle.tsx
 class TranslatorScreen extends StatefulWidget {
   const TranslatorScreen({Key? key}) : super(key: key);
 
@@ -18,20 +15,21 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   String _targetText = '';
   bool _isLatinToJava = true;
 
-  // --- PERBAIKAN UTAMA ADA DI SINI ---
-  late TranslatorService _translator; // 3. Buat jadi 'late final'
-  // final TranslatorService _translator = TranslatorService(); // <-- HAPUS BARIS INI
+  // Instance TranslatorService
+  late final TranslatorService _translator;
 
   @override
   void initState() {
     super.initState();
-    // 4. Inisialisasi _translator di dalam initState menggunakan Provider
-    // Ini aman karena context sudah tersedia di sini.
-    final dataService = Provider.of<DataService>(context, listen: false);
-    _translator =
-        TranslatorService(dataService); // Oper DataService ke constructor
+    // Inisialisasi langsung, tidak butuh Provider/DataService lagi
+    _translator = TranslatorService();
   }
-  // --- AKHIR PERBAIKAN ---
+
+  @override
+  void dispose() {
+    _sourceController.dispose();
+    super.dispose();
+  }
 
   void _handleTranslate() {
     final text = _sourceController.text;
@@ -39,20 +37,28 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       setState(() => _targetText = '');
       return;
     }
+
     setState(() {
-      _targetText = _isLatinToJava
-          ? _translator.translateLatinToJava(text)
-          : _translator.translateJavaToLatin(text);
+      if (_isLatinToJava) {
+        // Panggil fungsi translate dari service baru
+        _targetText = _translator.translate(text);
+      } else {
+        // Fallback karena algoritma ini hanya satu arah (Latin -> Jawa)
+        _targetText = "Fitur transliterasi Jawa ke Latin belum tersedia.";
+      }
     });
   }
 
   void _handleSwap() {
     final source = _sourceController.text;
     final target = _targetText;
+
     setState(() {
       _isLatinToJava = !_isLatinToJava;
-      _sourceController.text = target;
-      _targetText = source;
+      // Logika swap teks opsional, seringkali lebih baik dikosongkan
+      // karena hasil translate tidak selalu bisa dibalik sempurna
+      _sourceController.clear();
+      _targetText = '';
     });
   }
 
@@ -64,26 +70,29 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   }
 
   void _handleCopy() {
+    if (_targetText.isEmpty) return;
+
     Clipboard.setData(ClipboardData(text: _targetText));
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Teks disalin ke clipboard!')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Teks disalin ke clipboard!')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Pastikan nama font sesuai dengan pubspec.yaml ('TuladhaJejeg' atau 'Javanese')
+    final String javaneseFont = 'TuladhaJejeg';
 
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Language Selector
+        // --- Language Selector ---
         Card(
+          elevation: 2,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -91,6 +100,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   context,
                   _isLatinToJava ? 'Latin' : 'ꦲꦤꦕꦫꦏ',
                   true,
+                  _isLatinToJava ? null : javaneseFont,
                 ),
                 IconButton(
                   icon: Icon(
@@ -98,11 +108,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     color: theme.primaryColor,
                   ),
                   onPressed: _handleSwap,
+                  tooltip: 'Tukar Bahasa',
                 ),
                 _languageChip(
                   context,
                   !_isLatinToJava ? 'Latin' : 'ꦲꦤꦕꦫꦏ',
                   true,
+                  !_isLatinToJava ? null : javaneseFont,
                 ),
               ],
             ),
@@ -110,9 +122,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Input Card
+        // --- Input Card ---
         Card(
           clipBehavior: Clip.antiAlias,
+          elevation: 2,
           child: Column(
             children: [
               _headerBox(
@@ -122,6 +135,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     ? IconButton(
                         icon: const Icon(LucideIcons.trash2, size: 18),
                         onPressed: _handleClear,
+                        tooltip: 'Hapus Teks',
                       )
                     : null,
               ),
@@ -129,7 +143,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: TextField(
                   controller: _sourceController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Ketik teks di sini...',
                     border: InputBorder.none,
                   ),
@@ -137,21 +151,29 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   minLines: 3,
                   style: TextStyle(
                     fontSize: _isLatinToJava ? 16 : 24,
-                    fontFamily: _isLatinToJava ? null : 'Javanese',
+                    fontFamily: _isLatinToJava ? null : javaneseFont,
+                    height: 1.5,
                   ),
+                  onChanged: (val) {
+                    // Opsional: Realtime translate
+                    // _handleTranslate();
+                  },
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: _handleTranslate,
-                      child: const Text('Terjemahkan'),
+                      icon: const Icon(LucideIcons.languages, size: 18),
+                      label: const Text('Terjemahkan'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -161,9 +183,10 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Output Card
+        // --- Output Card ---
         Card(
           clipBehavior: Clip.antiAlias,
+          elevation: 2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -174,19 +197,24 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                     ? IconButton(
                         icon: const Icon(LucideIcons.copy, size: 18),
                         onPressed: _handleCopy,
+                        tooltip: 'Salin Hasil',
                       )
                     : null,
               ),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
+                constraints: const BoxConstraints(minHeight: 100),
+                child: SelectableText(
                   _targetText.isEmpty
                       ? 'Terjemahan akan muncul di sini...'
                       : _targetText,
                   style: TextStyle(
-                    fontSize: !_isLatinToJava ? 16 : 24,
-                    fontFamily: !_isLatinToJava ? null : 'Javanese',
+                    fontSize: !_isLatinToJava
+                        ? 16
+                        : 28, // Font Jawa diperbesar sedikit
+                    fontFamily: !_isLatinToJava ? null : javaneseFont,
+                    height: 1.5,
                     color: _targetText.isEmpty
                         ? theme.textTheme.bodyMedium?.color?.withOpacity(0.5)
                         : theme.textTheme.bodyMedium?.color,
@@ -198,18 +226,33 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Tips Card
+        // --- Tips Card ---
         Card(
           color: theme.primaryColor.withOpacity(0.1),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: theme.primaryColor.withOpacity(0.2)),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              '💡 Penerjemahan otomatis mungkin tidak sempurna. Gunakan sebagai panduan awal untuk belajar aksara Jawa.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
-                fontSize: 14,
-              ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.lightbulb,
+                    color: theme.primaryColor, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Fitur ini menggunakan algoritma transliterasi (Latin ke Jawa). Hasil mungkin tidak 100% akurat untuk nama orang atau kata serapan.',
+                    style: TextStyle(
+                      color:
+                          theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -217,16 +260,20 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     );
   }
 
-  Widget _languageChip(BuildContext context, String label, bool isActive) {
+  Widget _languageChip(
+      BuildContext context, String label, bool isActive, String? fontFamily) {
     final theme = Theme.of(context);
     return Chip(
-      label: Text(label, style: TextStyle(fontFamily: 'Javanese')),
+      label: Text(label,
+          style: TextStyle(
+            fontFamily: fontFamily,
+            fontWeight: FontWeight.bold,
+          )),
       backgroundColor:
-          isActive ? theme.primaryColor : theme.colorScheme.secondary,
+          isActive ? theme.primaryColor : theme.colorScheme.surface,
+      side: isActive ? BorderSide.none : BorderSide(color: theme.dividerColor),
       labelStyle: TextStyle(
-        color: isActive
-            ? theme.colorScheme.onPrimary
-            : theme.colorScheme.onSecondary,
+        color: isActive ? Colors.white : theme.colorScheme.onSurface,
       ),
     );
   }
@@ -234,8 +281,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
   Widget _headerBox(BuildContext context, String title, Widget? action) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      color: theme.primaryColor.withOpacity(0.1),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -244,6 +296,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
             style: TextStyle(
               color: theme.primaryColor,
               fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
           ),
           if (action != null) action,
