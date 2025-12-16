@@ -198,7 +198,7 @@ Contoh_ID,Aksara_ID,Contoh_Aksara_Jawa,Tulisan_Latin,Arti,Path_Audio,Timestamp_D
 0.825 1.512 sar"
 48,10,ꦭꦶꦩꦁ ꦲꦺꦮꦸ,Limang èwu,Lima ribu,limangewu.mp3,"0.058 0.305 li
 0.305 0.529 mang
-0.529 0.773 �
+0.529 0.773 e
 0.773 1.416 wu"
 49,10,ꦭꦺꦩ꧀ꦧꦃ ꦩꦤꦃ,Lembah manah,Rendah hati,lembahmanah.mp3,"0.132 0.366 lem
 0.366 0.610 bah
@@ -209,56 +209,220 @@ Contoh_ID,Aksara_ID,Contoh_Aksara_Jawa,Tulisan_Latin,Arti,Path_Audio,Timestamp_D
 0.520 0.769 ku
 0.769 1.025 a
 1.025 1.608 lon"
-51,11,ꦥꦱꦂ ꦒꦼꦝꦺ,Pasar gedhé,Pasar besar,pasargedhe.mp3,
-52,11,ꦥꦶꦠꦸꦁ ꦮꦂꦤ,Pitung warna,Tujuh warna,pitungwarna.mp3,
-53,11,ꦥꦸꦠꦸ ꦲꦪꦸ,Putu ayu,Putu ayu (nama kue),putuayu.mp3,
-54,11,ꦥꦶꦤ꧀ꦠꦼꦂ ꦧꦔꦼꦠ꧀,Pinter banget,Pintar sekali,pinterbanget.mp3,
-55,11,ꦥꦤ꧀ꦝꦮ ꦭꦶꦩ,Pandhawa lima,Pandawa lima,pandhawalima.mp3,
-56,12,ꦝꦮ ꦲꦸꦫꦶꦥꦺ,Dhawa uripé,Panjang umurnya,dhawauripe.mp3,
-57,12,ꦝꦲꦂ ꦫꦸꦩꦶꦪꦶꦤ꧀,Dhahar rumiyin,Makan dahulu,dhaharrumiyin.mp3,
-58,12,ꦝꦺꦴꦭꦤꦤ꧀ ꦲꦚꦂ,Dholanan anyar,Mainan baru,dholanananyar.mp3,
-59,12,ꦝꦸꦏꦸꦃ ꦲꦶꦗꦺꦴ,Dhukuh ijo,Dusun hijau,dhukuhijo.mp3,
-60,12,ꦝꦸꦮꦶꦠ꧀ꦠꦺ ꦲꦏꦺꦃ,Dhuwité akèh,Uangnya banyak,dhuwiteakeh.mp3,
-61,13,ꦗꦏ ꦠꦶꦁꦏꦶꦂ,Jaka Tingkir,Jaka Tingkir,jakatingkir.mp3,
-62,13,ꦗꦩ꧀ ꦥꦶꦫ,Jam pira,Jam berapa,jampira.mp3,
-63,13,ꦗꦼꦫꦸꦏ꧀ ꦊꦒꦶ,Jeruk legi,Jeruk manis,jeruklegi.mp3,
-64,13,ꦗꦗꦤ꧀ ꦥꦱꦂ,Jajan pasar,Jajanan pasar,jajanpasar.mp3,
-65,13,ꦗꦼꦤꦼꦁꦔꦺ ꦱꦥ,Jenengé sapa,Namanya siapa,jenengesapa.mp3,
-66,14,ꦪꦸꦪꦸ ꦏꦁꦏꦁ,Yuyu kangkang,Yuyu kangkang (nama tembang),yuyukangkang.mp3,
-67,14,ꦪꦺꦤ꧀ ꦱꦩ꧀ꦥꦺꦪꦤ꧀,Yèn sampéyan,Jika Anda,yensampeyan.mp3,
-68,14,ꦪꦸꦏ ꦩꦔꦤ꧀,Yuk mangan,Ayo makan,yukmangan.mp3,
-69,14,ꦪꦸꦱ꧀ꦮ ꦥꦶꦫ,Yuswa pira,Umur berapa,yuswapira.mp3,
-70,14,ꦪꦪꦱꦤ꧀ ꦱꦺꦴꦱꦶꦪꦭ꧀,Yayasan sosial,Yayasan sosial,yayasansosial.mp3,
-71,15,ꦚꦸꦮꦸꦤ꧀ ꦥꦔꦥꦸꦫ,Nyuwun pangapura,Meminta maaf,nyuwunpangapura.mp3,
-72,15,ꦚꦩ꧀ꦧꦸꦠ꧀ ꦒꦮꦺ,Nyambut gawé,Bekerja,nyambutgawe.mp3,
-73,15,ꦚꦸꦧꦿꦁ ꦏꦭꦶ,Nyebrang kali,Menyeberang sungai,nyebrangkali.mp3,
-74,15,ꦚꦶꦫꦩ꧀ ꦏꦼꦩ꧀ꦧꦁ,Nyiram kembang,Menyiram bunga,nyiramkembang.mp3,
-75,15,ꦚꦶꦪꦥꦏꦺ ꦧꦸꦏꦸ,Nyiapaké buku,Menyiapkan buku,nyiapakebuku.mp3,
-76,16,ꦩꦕꦤ꧀ ꦥꦸꦠꦶꦃ,Macan putih,Macan putih,macanputih.mp3,
-77,16,ꦩꦿꦶꦥꦠ꧀ ꦧꦶꦫꦸ,Mripat biru,Mata biru,mripatbiru.mp3,
-78,16,ꦩꦸꦁ ꦏꦺꦴꦮꦺ,Mung kowé,Hanya kamu,mungkowe.mp3,
-79,16,ꦩꦼꦤꦸꦗꦸ ꦱꦺꦴꦭꦺꦴ,Menuju Solo,Menuju Solo,menujusolo.mp3,
-80,16,ꦩꦔꦤ꧀ ꦱꦼꦒ,Mangan sega,Makan nasi,mangansega.mp3,
-81,17,ꦒꦸꦤꦸꦁ ꦧꦿꦩ,Gunung Brama,Gunung Bromo,gunungbrama.mp3,
-82,17,ꦒꦼꦝꦺ ꦝꦸꦮꦸꦂ,Gedhé dhuwur,Besar dan tinggi,gedhedhuwur.mp3,
-83,17,ꦒꦸꦭ ꦗꦮ,Gula Jawa,Gula Jawa,gulajawa.mp3,
-84,17,ꦒꦮꦺ ꦱꦼꦒ,Gawé sega,Membuat nasi,gawesega.mp3,
-85,17,ꦒꦺꦴꦭꦺꦏ꧀ ꦲꦶꦭ꧀ꦩꦸ,Golèk ilmu,Mencari ilmu,golekilmu.mp3,
-86,18,ꦧꦥꦏ꧀ ꦥꦸꦕꦸꦁ,Bapak pucung,Bapak pucung (nama tembang),bapakpucung.mp3,
-87,18,ꦧꦸꦏꦸ ꦕꦫꦶꦠ,Buku carita,Buku cerita,bukucarita.mp3,
-88,18,ꦧꦶꦱ ꦩꦕ,Bisa maca,Bisa membaca,bisamaca.mp3,
-89,18,ꦧꦸꦝꦭ꧀ ꦱꦲꦶꦏꦶ,Budhal saiki,Berangkat sekarang,budhalsaiki.mp3,
-90,18,ꦧꦭꦶ ꦩꦼꦚꦁ ꦲꦺꦴꦩꦃ,Bali menyang omah,Pulang ke rumah,balimenyangomah.mp3,
-91,19,ꦛꦸꦏꦸꦭ꧀ ꦲꦶꦗꦺꦴ,Thukul ijo,Tumbuh hijau,thukulijo.mp3,
-92,19,ꦏꦼꦤ꧀ꦛꦺꦴꦁ ꦛꦶꦛꦶꦂ,Kenthong thithir,Kenthongan dipukul cepat,kenthongthithir.mp3,
-93,19,ꦏꦤ꧀ꦛꦶꦭ꧀ ꦛꦸꦮꦸꦏ꧀,Kanthil thuwuk,Kuncup tumbuh,kanthilthuwuk.mp3,
-94,19,ꦛꦼꦛꦼꦭ꧀ ꦲꦶꦗꦺꦴ,Thethel ijo,Jangkrik hijau,thethelijo.mp3,
-95,19,ꦛꦺꦴꦏ꧀ꦭꦺ ꦭꦺꦴꦫꦺꦴ,Thoklè loro,Dua tokek,thokleloro.mp3,
-96,20,ꦔꦺꦴꦧꦿꦺꦴꦭ꧀ ꦱꦱ꧀ꦠꦿ,Ngobrol sastra,Mengobrol sastra,ngobrolsastra.mp3,
-97,20,ꦔꦸꦤ꧀ꦗꦸꦏ꧀ ꦏꦺꦴꦥꦶ,Ngunjuk kopi,Minum kopi (krama),ngunjukkopi.mp3,
-98,20,ꦔꦤ꧀ꦠꦶ ꦱꦺꦴꦫꦺ,Nganti soré,Sampai sore,ngantisore.mp3,
-99,20,ꦔꦶꦩ꧀ꦥꦶ ꦲꦶꦤ꧀ꦢꦃ,Ngimpi indah,Mimpi indah,ngimpiindah.mp3,
-100,20,ꦔꦫꦶꦠ꧀ ꦱꦸꦏꦼꦠ꧀,Ngarit suket,Mencari rumput,ngaritsuket.mp3,
+51,11,ꦥꦱꦂ ꦒꦼꦝꦺ,Pasar gedhé,Pasar besar,pasargedhe.mp3,"0.168 0.38 pa
+0.383 0.640 sar
+0.640 0.884 ge
+0.884 1.512 dh�"
+52,11,ꦥꦶꦠꦸꦁ ꦮꦂꦤ,Pitung warna,Tujuh warna,pitungwarna.mp3,"0.170 0.373 pi
+0.373 0.572 tung
+0.572 0.886 war
+0.886 1.536 na"
+53,11,ꦥꦸꦠꦸ ꦲꦪꦸ,Putu ayu,Putu ayu (nama kue),putuayu.mp3,"0.091 0.304 pu
+0.304 0.499 tu
+0.499 0.675 a
+0.675 1.344 yu"
+54,11,ꦥꦶꦤ꧀ꦠꦼꦂ ꦧꦔꦼꦠ꧀,Pinter banget,Pintar sekali,pinterbanget.mp3,"0.032 0.315 pin
+0.315 0.545 ter
+0.545 0.859 mba
+0.859 1.344 nget"
+55,11,ꦥꦤ꧀ꦝꦮ ꦭꦶꦩ,Pandhawa lima,Pandawa lima,pandhawalima.mp3,"0.074 0.318 pan
+0.318 0.579 dha
+0.579 0.791 wa
+0.791 1.054 li
+1.054 1.68 ma"
+56,12,ꦝꦮ ꦲꦸꦫꦶꦥꦺ,Dhawa uripé,Panjang umurnya,dhawauripe.mp3,"0.144 0.334 dha
+0.334 0.573wa
+0.573 0.772 u
+0.772 0.980 ri
+0.980 1.632 p�"
+57,12,ꦝꦲꦂ ꦫꦸꦩꦶꦪꦶꦤ꧀,Dhahar rumiyin,Makan dahulu,dhaharrumiyin.mp3,"0.082 0.282 dha
+0.282 0.516 har
+0.516 0.726 ru
+0.726 1.022 mi
+1.022 1.632 yin"
+58,12,ꦝꦺꦴꦭꦤꦤ꧀ ꦲꦚꦂ,Dholanan anyar,Mainan baru,dholanananyar.mp3,"0.065 0.316 dho
+0.316 0.522 la
+0.522 0.782 nan
+0.782 1.034 a
+1.034 1.632 nyar"
+59,12,ꦝꦸꦏꦸꦃ ꦲꦶꦗꦺꦴ,Dhukuh ijo,Dusun hijau,dhukuhijo.mp3,"0.084 0.320 dhu
+0.320 0.569 kuh
+0.569 0.790 i
+0.790 1.464 jo"
+60,12,ꦝꦸꦮꦶꦠ꧀ꦠꦺ ꦲꦏꦺꦃ,Dhuwité akèh,Uangnya banyak,dhuwiteakeh.mp3,"0.138 0.323 dhu
+0.323 0.499 wi
+0.499 0.714 t�
+0.714 0.982 a
+0.982 1.560 k�h"
+61,13,ꦗꦏ ꦠꦶꦁꦏꦶꦂ,Jaka Tingkir,Jaka Tingkir,jakatingkir.mp3,"0.111 0.350 ja
+0.350 0.586 ka
+0.586 0.880 ting
+0.880 1.608 kir"
+62,13,ꦗꦩ꧀ ꦥꦶꦫ,Jam pira,Jam berapa,jampira.mp3,"0.131 0.367 jam
+0.367 0.650 pi
+0.650 1.248 ra"
+63,13,ꦗꦼꦫꦸꦏ꧀ ꦊꦒꦶ,Jeruk legi,Jeruk manis,jeruklegi.mp3,"0.083 0.305 je
+0.305 0.478 ruk
+0.478 0.716 le
+0.716 1.416 gi"
+64,13,ꦗꦗꦤ꧀ ꦥꦱꦂ,Jajan pasar,Jajanan pasar,jajanpasar.mp3,"0.076 0.310 ja
+0.310 0.645 jan
+0.645 0.967 pa
+0.967 1.632 sar"
+65,13,ꦗꦼꦤꦼꦁꦔꦺ ꦱꦥ,Jenengé sapa,Namanya siapa,jenengesapa.mp3,"0.107 0.295 je
+0.295 0.469 ne
+0.469 0.742 ng�
+0.742 1.070 sa
+1.070 1.680 pa"
+66,14,ꦪꦸꦪꦸ ꦏꦁꦏꦁ,Yuyu kangkang,Yuyu kangkang (nama tembang),yuyukangkang.mp3,"0.086 0.310 yu
+0.310 0.527 yu
+0.527 0.822 kang
+0.822 1.512 kang"
+67,14,ꦪꦺꦤ꧀ ꦱꦩ꧀ꦥꦺꦪꦤ꧀,Yèn sampéyan,Jika Anda,yensampeyan.mp3,"0.140 0.349 y�n
+0.349 0.678 sam
+0.678 0.962 p�
+0.962 1.536 yan"
+68,14,ꦪꦸꦏ ꦩꦔꦤ꧀,Yuk mangan,Ayo makan,yukmangan.mp3,"0.047 0.328 yuk
+0.328 0.605 ma
+0.605 1.272 ngan"
+69,14,ꦪꦸꦱ꧀ꦮ ꦥꦶꦫ,Yuswa pira,Umur berapa,yuswapira.mp3,"0.081 0.356 yus
+0.356 0.614 wa
+0.614 0.865 pi
+0.865 1.464 ra"
+70,14,ꦪꦪꦱꦤ꧀ ꦱꦺꦴꦱꦶꦪꦭ꧀,Yayasan sosial,Yayasan sosial,yayasansosial.mp3,"0.090 0.312 ya
+0.312 0.540 ya
+0.540 0.816 san
+0.816 1.044 so
+1.044 1.285 si
+1.285 1.896 yal"
+71,15,ꦚꦸꦮꦸꦤ꧀ ꦥꦔꦥꦸꦫ,Nyuwun pangapura,Meminta maaf,nyuwunpangapura.mp3,"0.058 0.283 nyu
+0.283 0.462 wun
+0.462 0.768 pa
+0.768 0.994 nga
+0.994 1.255 pu
+1.255 1.824 ra"
+72,15,ꦚꦩ꧀ꦧꦸꦠ꧀ ꦒꦮꦺ,Nyambut gawé,Bekerja,nyambutgawe.mp3,"0.113 0.323 nyam
+0.323 0.559 but
+0.559 0.850 ga
+0.850 1.512 w�"
+73,15,ꦚꦸꦧꦿꦁ ꦏꦭꦶ,Nyebrang kali,Menyeberang sungai,nyebrangkali.mp3,"0.059 0.238 nye
+0.238 0.536 brang
+0.536 0.896 ka
+0.896 1.512 li"
+74,15,ꦚꦶꦫꦩ꧀ ꦏꦼꦩ꧀ꦧꦁ,Nyiram kembang,Menyiram bunga,nyiramkembang.mp3,"0.086 0.296 nyi
+0.296 0.511 ram
+0.511 0.777 kem
+0.777 1.488 bang"
+75,15,ꦚꦶꦪꦥꦏꦺ ꦧꦸꦏꦸ,Nyiapaké buku,Menyiapkan buku,nyiapakebuku.mp3,"0.093 0.260 nyi
+0.260 0.426 a
+0.426 0.687 pa
+0.687 0.918 k�
+0.918 1.176 bu
+1.176 1.800 ku"
+76,16,ꦩꦕꦤ꧀ ꦥꦸꦠꦶꦃ,Macan putih,Macan putih,macanputih.mp3,"0.137 0.311 ma
+0.311 0.533 can
+0.533 0.840 pu
+0.840 1.512 tih"
+77,16,ꦩꦿꦶꦥꦠ꧀ ꦧꦶꦫꦸ,Mripat biru,Mata biru,mripatbiru.mp3,"0.056 0.296 mri
+0.296 0.633 pat
+0.633 0.911 bi
+0.911 1.536 ru"
+78,16,ꦩꦸꦁ ꦏꦺꦴꦮꦺ,Mung kowé,Hanya kamu,mungkowe.mp3,"0.079 0.304 mung
+0.304 0.641 ko
+0.641 1.200 w�"
+79,16,ꦩꦼꦤꦸꦗꦸ ꦱꦺꦴꦭꦺꦴ,Menuju Solo,Menuju Solo,menujusolo.mp3,"0.044 0.250 me
+0.250 0.452 nu
+0.452 0.741 ju
+0.741 1.017 so
+1.017 1.680lo"
+80,16,ꦩꦔꦤ꧀ ꦱꦼꦒ,Mangan sega,Makan nasi,mangansega.mp3,"0.051 0.300 ma
+0.300 0.537 ngan
+0.537 0.793 se
+0.793 1.560ga"
+81,17,ꦒꦸꦤꦸꦁ ꦧꦿꦩ,Gunung Brama,Gunung Bromo,gunungbrama.mp3,"0.069 0.273 gu
+0.273 0.519 nung
+0.519 0.868 bra
+0.868 1.512ma"
+82,17,ꦒꦼꦝꦺ ꦝꦸꦮꦸꦂ,Gedhé dhuwur,Besar dan tinggi,gedhedhuwur.mp3,"0.097 0.280 ge
+0.280 0.543 dh�
+0.543 0.836 dhu
+0.836 1.392 wur"
+83,17,ꦒꦸꦭ ꦗꦮ,Gula Jawa,Gula Jawa,gulajawa.mp3,"0.079 0.283 gu
+0.283 0.517 la
+0.517 0.824 ja
+0.824 1.440 wa"
+84,17,ꦒꦮꦺ ꦱꦼꦒ,Gawé sega,Membuat nasi,gawesega.mp3,"0.082 0.307 ga
+0.307 0.623 w�
+0.623 0.816 se
+0.816 1.488 ga"
+85,17,ꦒꦺꦴꦭꦺꦏ꧀ ꦲꦶꦭ꧀ꦩꦸ,Golèk ilmu,Mencari ilmu,golekilmu.mp3,"0.084 0.293 go
+0.293 0.518 l�k
+0.518 0.703 il
+0.703 1.392mu"
+86,18,ꦧꦥꦏ꧀ ꦥꦸꦕꦸꦁ,Bapak pucung,Bapak pucung (nama tembang),bapakpucung.mp3,"0.116 0.312 ba
+0.312 0.612 pak
+0.612 0.882 pu
+0.882 1.536 cung"
+87,18,ꦧꦸꦏꦸ ꦕꦫꦶꦠ,Buku carita,Buku cerita,bukucarita.mp3,"0.066 0.302 bu
+0.302 0.530 ku
+0.530 0.738 ca
+0.738 0.944 ri
+0.944 1.608 ta"
+88,18,ꦧꦶꦱ ꦩꦕ,Bisa maca,Bisa membaca,bisamaca.mp3,"0.055 0.298 bi
+0.298 0.536 sa
+0.536 0.772 ma
+0.772 1.464 ca"
+89,18,ꦧꦸꦝꦭ꧀ ꦱꦲꦶꦏꦶ,Budhal saiki,Berangkat sekarang,budhalsaiki.mp3,"0.176 0.353 bu
+0.353 0.611 dhal
+0.611 0.841 sa
+0.841 1.008 i
+1.008 1.656ki"
+90,18,ꦧꦭꦶ ꦩꦼꦚꦁ ꦲꦺꦴꦩꦃ,Bali menyang omah,Pulang ke rumah,balimenyangomah.mp3,"0.081 0.260 ba
+0.260 0.530 li
+0.530 0.833 me
+0.833 1.027 nyang
+1.027 1.249 o
+1.249 1.824 mah"
+91,19,ꦛꦸꦏꦸꦭ꧀ ꦲꦶꦗꦺꦴ,Thukul ijo,Tumbuh hijau,thukulijo.mp3,"0.118 0.322 thu
+0.322 0.608 kul
+0.608 0.832 i
+0.832 1.512 jo"
+92,19,ꦏꦼꦤ꧀ꦛꦺꦴꦁ ꦛꦶꦛꦶꦂ,Kenthong thithir,Kenthongan dipukul cepat,kenthongthithir.mp3,"0.132 0.385 ken
+0.385 0.621 thong
+0.621 0.895 thi
+0.895 1.536 thir"
+93,19,ꦏꦤ꧀ꦛꦶꦭ꧀ ꦛꦸꦮꦸꦏ꧀,Kanthil thuwuk,Kuncup tumbuh,kanthilthuwuk.mp3,"0.133 0.362 kan
+0.362 0.640 thil
+0.640 0.897 thu
+0.897 1.392wuk"
+94,19,ꦛꦼꦛꦼꦭ꧀ ꦲꦶꦗꦺꦴ,Thethel ijo,Jangkrik hijau,thethelijo.mp3,"0.075 0.370 the
+0.370 0.602 thel
+0.602 0.826 i
+0.826 1.512 joa"
+95,19,ꦛꦺꦴꦏ꧀ꦭꦺ ꦭꦺꦴꦫꦺꦴ,Thoklè loro,Dua tokek,thokleloro.mp3,"0.064 0.368 thok
+0.368 0.646 l�
+0.646 0.905 lo
+0.905 1.464 ro"
+96,20,ꦔꦺꦴꦧꦿꦺꦴꦭ꧀ ꦱꦱ꧀ꦠꦿ,Ngobrol sastra,Mengobrol sastra,ngobrolsastra.mp3,"0.092 0.346 ngo
+0.346 0.708 brol
+0.708 1.076 sas
+1.076 1.776 tra"
+97,20,ꦔꦸꦤ꧀ꦗꦸꦏ꧀ ꦏꦺꦴꦥꦶ,Ngunjuk kopi,Minum kopi (krama),ngunjukkopi.mp3,"0.138 0.363 ngun
+0.363 0.610 juk
+0.610 0.883 ko
+0.883 1.512 pi"
+98,20,ꦔꦤ꧀ꦠꦶ ꦱꦺꦴꦫꦺ,Nganti soré,Sampai sore,ngantisore.mp3,"0.073 0.605 ngan
+0.338 0.605 ti
+0.605 0.846 so
+0.846 1.440 r�"
+99,20,ꦔꦶꦩ꧀ꦥꦶ ꦲꦶꦤ꧀ꦢꦃ,Ngimpi indah,Mimpi indah,ngimpiindah.mp3,"0.131 0.334 ngim
+0.334 0.561 pi
+0.561 0.760 in
+0.760 1.368 dah"
+100,20,ꦔꦫꦶꦠ꧀ ꦱꦸꦏꦼꦠ꧀,Ngarit suket,Mencari rumput,ngaritsuket.mp3,"0.067 0.291 nga
+0.291 0.509 rit
+0.509 0.817 su
+0.817 1.272 ket"
 101,21,ꦮꦸꦭꦤ꧀ꦲꦥ,Wulan apa,Bulan apa,,
 102,22,ꦲꦤ꧀ꦤꦒ,Ana naga,Ada naga,,
 103,23,ꦲꦤ꧀ꦕꦫ,Ana cara,Ada cara,,
