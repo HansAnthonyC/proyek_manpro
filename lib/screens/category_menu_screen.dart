@@ -104,7 +104,21 @@ class CategoryMenuScreen extends StatelessWidget {
                 child: Stack(
                   // Gunakan Stack untuk menumpuk elemen
                   children: [
-                    // --- Konten Utama (Lapisan Bawah) ---
+                    // --- Ikon Aksara Background (Kanan Bawah) - PALING BAWAH dalam Stack ---
+                    Positioned(
+                      right: 10,
+                      bottom: 0,
+                      child: Text(
+                        iconChar,
+                        style: TextStyle(
+                          fontSize: 50, // Ukuran lebih kecil
+                          fontFamily: 'Javanese',
+                          color: colors.main.withOpacity(0.08),
+                        ),
+                      ),
+                    ),
+
+                    // --- Konten Utama (Lapisan Tengah) ---
                     // Dibungkus Padding agar tidak terlalu mepet ke ikon bawah
                     Padding(
                       padding: const EdgeInsets.only(
@@ -159,32 +173,16 @@ class CategoryMenuScreen extends StatelessWidget {
                       ),
                     ),
 
-                    // --- Ikon & Panah (Lapisan Atas) ---
-                    // Ikon Aksara Solid (Kiri Bawah)
+                    // --- Ikon Aksara Solid (Kiri Bawah) ---
                     Positioned(
                       left: 0,
                       bottom: 0,
                       child: Text(
                         iconChar,
                         style: TextStyle(
-                          fontSize: 36, // Ukuran dari Figma
-                          fontFamily: 'Javanese', // Pastikan font aktif
-                          color: colors.main, // Warna solid
-                        ),
-                      ),
-                    ),
-
-                    // Ikon Aksara Background (Kanan Bawah)
-                    Positioned(
-                      right: 5, // Geser sedikit ke kiri
-                      bottom: -5, // Geser sedikit ke atas
-                      child: Text(
-                        iconChar,
-                        style: TextStyle(
-                          fontSize: 65, // Kecilkan sedikit
-                          fontFamily: 'Javanese', // Pastikan font aktif
-                          color: colors.main
-                              .withOpacity(0.08), // Sangat transparan
+                          fontSize: 28, // Ukuran lebih kecil
+                          fontFamily: 'Javanese',
+                          color: colors.main,
                         ),
                       ),
                     ),

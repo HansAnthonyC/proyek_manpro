@@ -128,8 +128,9 @@ class JavaneseHeader extends StatelessWidget implements PreferredSizeWidget {
                         child: Text(
                           subtitle!,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.2),
-                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.85),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),

@@ -43,8 +43,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         // Panggil fungsi translate dari service baru
         _targetText = _translator.translate(text);
       } else {
-        // Fallback karena algoritma ini hanya satu arah (Latin -> Jawa)
-        _targetText = "Fitur transliterasi Jawa ke Latin belum tersedia.";
+        // Terjemahkan Aksara Jawa ke Latin
+        _targetText = _translator.translateToLatin(text);
       }
     });
   }
@@ -98,9 +98,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
               children: [
                 _languageChip(
                   context,
-                  _isLatinToJava ? 'Latin' : 'ꦲꦤꦕꦫꦏ',
+                  _isLatinToJava ? 'Latin' : 'Aksara Jawa',
                   true,
-                  _isLatinToJava ? null : javaneseFont,
+                  null,
                 ),
                 IconButton(
                   icon: Icon(
@@ -112,9 +112,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                 ),
                 _languageChip(
                   context,
-                  !_isLatinToJava ? 'Latin' : 'ꦲꦤꦕꦫꦏ',
+                  !_isLatinToJava ? 'Latin' : 'Aksara Jawa',
                   true,
-                  !_isLatinToJava ? null : javaneseFont,
+                  null,
                 ),
               ],
             ),
@@ -150,7 +150,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                   maxLines: 5,
                   minLines: 3,
                   style: TextStyle(
-                    fontSize: _isLatinToJava ? 16 : 24,
+                    fontSize: _isLatinToJava ? 18 : 22,
                     fontFamily: _isLatinToJava ? null : javaneseFont,
                     height: 1.5,
                   ),
@@ -210,9 +210,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                       ? 'Terjemahan akan muncul di sini...'
                       : _targetText,
                   style: TextStyle(
-                    fontSize: !_isLatinToJava
-                        ? 16
-                        : 28, // Font Jawa diperbesar sedikit
+                    fontSize: !_isLatinToJava ? 18 : 20, // Font Jawa diperbesar
                     fontFamily: !_isLatinToJava ? null : javaneseFont,
                     height: 1.5,
                     color: _targetText.isEmpty

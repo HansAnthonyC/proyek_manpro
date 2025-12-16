@@ -80,26 +80,41 @@ class CharacterGridScreen extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: () => onCharacterSelect(char),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      char.aksara,
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontFamily: 'Javanese',
-                        color: colors.main,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            char.aksara,
+                            style: TextStyle(
+                              fontSize: 24, // Ukuran lebih kecil
+                              fontFamily: 'Javanese',
+                              color: colors.main,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      char.namaLatin,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                      const SizedBox(height: 2),
+                      Flexible(
+                        flex: 1,
+                        child: Text(
+                          char.namaLatin,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10, // Ukuran lebih kecil
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );

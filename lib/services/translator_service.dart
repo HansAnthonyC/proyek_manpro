@@ -19,6 +19,34 @@ class TranslatorService {
     ',': '꧈', '.': '꧉', ' ': ' '
   };
 
+  // --- ANGKA JAWA ---
+  static const Map<String, String> ANGKA = {
+    '0': '꧐',
+    '1': '꧑',
+    '2': '꧒',
+    '3': '꧓',
+    '4': '꧔',
+    '5': '꧕',
+    '6': '꧖',
+    '7': '꧗',
+    '8': '꧘',
+    '9': '꧙',
+  };
+
+  // Reverse mapping untuk Jawa ke Latin
+  static const Map<String, String> ANGKA_TO_LATIN = {
+    '꧐': '0',
+    '꧑': '1',
+    '꧒': '2',
+    '꧓': '3',
+    '꧔': '4',
+    '꧕': '5',
+    '꧖': '6',
+    '꧗': '7',
+    '꧘': '8',
+    '꧙': '9',
+  };
+
   static const Map<String, String> PASANGAN = {
     'h': '꧀ꦲ', 'n': '꧀ꦤ', 'c': '꧀ꦕ', 'r': '꧀ꦫ', 'k': '꧀ꦏ',
     'd': '꧀ꦢ', 't': '꧀ꦠ', 's': '꧀ꦱ', 'w': '꧀ꦮ', 'l': '꧀ꦭ',
@@ -59,6 +87,34 @@ class TranslatorService {
     'O'
   ];
 
+  // --- REVERSE LOOKUP MAPS (Jawa -> Latin) ---
+
+  // Map aksara dasar ke Latin (reverse of HURUF)
+  static const Map<String, String> JAWA_TO_LATIN = {
+    'ꦲ': 'ha', 'ꦤ': 'na', 'ꦕ': 'ca', 'ꦫ': 'ra', 'ꦏ': 'ka',
+    'ꦢ': 'da', 'ꦠ': 'ta', 'ꦱ': 'sa', 'ꦮ': 'wa', 'ꦭ': 'la',
+    'ꦥ': 'pa', 'ꦝ': 'dha', 'ꦗ': 'ja', 'ꦪ': 'ya', 'ꦚ': 'nya',
+    'ꦩ': 'ma', 'ꦒ': 'ga', 'ꦧ': 'ba', 'ꦛ': 'tha', 'ꦔ': 'nga',
+    'ꦯ': 'sa', // Sa Murda
+    '꧈': ',', '꧉': '.', ' ': ' ',
+  };
+
+  // Map sandhangan ke vokal Latin
+  static const Map<String, String> SANDHANGAN_TO_VOWEL = {
+    'ꦶ': 'i', // wulu
+    'ꦸ': 'u', // suku
+    'ꦼ': 'e', // pepet
+    'ꦺ': 'é', // taling
+    'ꦴ': 'o', // tarung (setelah taling jadi 'o')
+    'ꦁ': 'ng', // cecak
+    'ꦃ': 'h', // wignyan
+    'ꦂ': 'r', // layar
+    'ꦿ': 'ra', // cakra
+    'ꦽ': 're', // keret
+    'ꦾ': 'ya', // pengkal
+    '꧀': '', // pangkon (mati, hapus vokal default)
+  };
+
   // --- MAIN FUNCTION ---
 
   String translate(String text) {
@@ -69,22 +125,119 @@ class TranslatorService {
     return _doTransliterate(normalized);
   }
 
+  /// Terjemahkan Aksara Jawa ke Latin
+  String translateToLatin(String javaText) {
+    if (javaText.isEmpty) return "";
+    return _doTransliterateToLatin(javaText);
+  }
+
+  String _doTransliterateToLatin(String text) {
+    StringBuffer result = StringBuffer();
+    List<String> chars = text.runes.map((r) => String.fromCharCode(r)).toList();
+
+    int i = 0;
+    while (i < chars.length) {
+      String char = chars[i];
+
+      // Skip spasi
+      if (char == ' ') {
+        result.write(' ');
+        i++;
+        continue;
+      }
+
+      // Cek apakah angka Jawa
+      if (ANGKA_TO_LATIN.containsKey(char)) {
+        result.write(ANGKA_TO_LATIN[char]);
+        i++;
+        continue;
+      }
+
+      // Cek apakah aksara dasar
+      if (JAWA_TO_LATIN.containsKey(char)) {
+        String latin = JAWA_TO_LATIN[char]!;
+
+        // Default vokal adalah 'a', tapi bisa di-override oleh sandhangan
+        String baseConsonant = latin.replaceAll('a', ''); // Hapus vokal default
+        String vowel = 'a'; // Default
+        bool hasPangkon = false;
+
+        // Cek sandhangan setelah aksara
+        int j = i + 1;
+        while (j < chars.length && SANDHANGAN_TO_VOWEL.containsKey(chars[j])) {
+          String sandhanganChar = chars[j];
+          String sandhanganValue = SANDHANGAN_TO_VOWEL[sandhanganChar]!;
+
+          if (sandhanganChar == '꧀') {
+            // Pangkon = konsonan mati
+            hasPangkon = true;
+            vowel = '';
+          } else if (sandhanganChar == 'ꦴ') {
+            // Tarung - jika sebelumnya taling, jadi 'o'
+            if (vowel == 'é') vowel = 'o';
+          } else if (sandhanganChar == 'ꦺ') {
+            // Taling
+            vowel = 'é';
+          } else if (['ꦁ', 'ꦃ', 'ꦂ'].contains(sandhanganChar)) {
+            // Cecak, wignyan, layar - akhiran konsonan
+            result.write(baseConsonant + vowel + sandhanganValue);
+            vowel = ''; // Sudah ditulis
+            baseConsonant = '';
+          } else if (['ꦿ', 'ꦽ', 'ꦾ'].contains(sandhanganChar)) {
+            // Cakra, keret, pengkal - sisipan
+            baseConsonant += sandhanganValue;
+          } else {
+            // Vokal biasa (wulu, suku, pepet)
+            vowel = sandhanganValue;
+          }
+          j++;
+        }
+
+        // FIX: Jika karakter berikutnya (setelah sandhangan) adalah pangkon (꧀),
+        // maka aksara ini kehilangan vokal default karena itu bagian dari pasangan berikutnya
+        if (j < chars.length && chars[j] == '꧀') {
+          vowel = ''; // Konsonan mati karena diikuti pasangan
+        }
+
+        // Tulis hasil
+        if (baseConsonant.isNotEmpty || vowel.isNotEmpty) {
+          result.write(baseConsonant + vowel);
+        }
+
+        i = j;
+      }
+      // Cek apakah pangkon (untuk pasangan)
+      else if (char == '꧀') {
+        // Pangkon di awal biasanya bagian dari pasangan, skip
+        i++;
+      }
+      // Karakter tidak dikenal, tulis apa adanya
+      else {
+        result.write(char);
+        i++;
+      }
+    }
+
+    return result.toString();
+  }
+
   // --- CORE LOGIC ---
 
   String _doTransliterate(String text) {
     String result = '';
     List<String> tokens = _tokenizeSentence(text);
 
+    print('[Translator] Input: "$text"');
+    print('[Translator] Tokens: $tokens');
+
     for (int i = 0; i < tokens.length; i++) {
       String token = tokens[i];
       String? prevToken = (i > 0) ? tokens[i - 1] : null;
       String? nextToken = (i < tokens.length - 1) ? tokens[i + 1] : null;
 
-      // Deteksi akhir kalimat/kata
-      bool isEnd = (nextToken == null ||
-          nextToken == ',' ||
-          nextToken == '.' ||
-          nextToken == ' ');
+      // Deteksi AKHIR KALIMAT sesungguhnya (bukan spasi!)
+      // FIX: Hapus ' ' dari kondisi isEnd - pangkon hanya di akhir kalimat/titik/koma
+      bool isEnd = (nextToken == null || nextToken == ',' || nextToken == '.');
 
       // Abaikan spasi di processing token, tapi masukkan ke result jika perlu
       if (token == ' ') {
@@ -92,8 +245,28 @@ class TranslatorService {
         continue;
       }
 
-      result += _transliterateToken(token, isEnd, prevToken, nextToken);
+      // FIX: Jika prev adalah spasi, cari token sebelum spasi untuk deteksi pasangan
+      // Aturan: Kata setelah kata yg berakhir konsonan mati harus pakai pasangan
+      String? effectivePrev = prevToken;
+      if (prevToken == ' ' && i >= 2) {
+        effectivePrev = tokens[i - 2]; // Token sebelum spasi
+      }
+
+      // Cek apakah token adalah angka
+      if (RegExp(r'^\d+$').hasMatch(token)) {
+        // Konversi setiap digit ke angka Jawa
+        for (var digit in token.split('')) {
+          result += ANGKA[digit] ?? digit;
+        }
+        continue;
+      }
+
+      String translated =
+          _transliterateToken(token, isEnd, effectivePrev, nextToken);
+      print('[Translator] Token "$token" -> "$translated"');
+      result += translated;
     }
+    print('[Translator] Result: "$result"');
     return result;
   }
 
@@ -111,6 +284,9 @@ class TranslatorService {
     for (String part in parts) {
       if (part.isEmpty) continue;
       if ([' ', ',', '.'].contains(part)) {
+        allTokens.add(part);
+      } else if (RegExp(r'^\d+$').hasMatch(part)) {
+        // Angka: tambahkan langsung tanpa parse ke suku kata
         allTokens.add(part);
       } else {
         allTokens.addAll(_parseWordToSyllables(part));
@@ -205,10 +381,12 @@ class TranslatorService {
       if (consonants.contains(char)) {
         if (i + 1 < wordLen) {
           String next = word[i + 1];
-          if (_isVowel(next) && char != 'l') {
-            ltr.add(char + next); // Ka, Ba
+          // FIX: Hapus kondisi 'char != l' yang menyebabkan bug
+          if (_isVowel(next)) {
+            ltr.add(char + next); // Ka, Ba, La, Lo
             i += 2;
-          } else if (['l', 'r', 'y'].contains(next)) {
+          } else if (['l', 'r', 'y'].contains(next) && char != 'l') {
+            // Cluster consonant (kra, kla, kya) - tapi 'l' tidak bisa cluster dengan dirinya sendiri
             if (i + 2 < wordLen && _isVowel(word[i + 2])) {
               ltr.add(char + next + word[i + 2]); // Kra, Kla
               i += 3;
@@ -331,7 +509,9 @@ class TranslatorService {
         }
       }
     } else if (hrf.startsWith('ny')) {
-      if (prev != null && prev.length == 1 && !['h', 'r', 'ng'].contains(prev))
+      if (prev != null &&
+          prev.length == 1 &&
+          ![' ', 'h', 'r', 'ng'].contains(prev))
         ltr += PASANGAN['ny'] ?? '';
       else
         ltr += HURUF['ny'] ?? '';
@@ -344,13 +524,13 @@ class TranslatorService {
         else if (hrf.contains('r')) ltr += SANDHANGAN['cakra'] ?? '';
       }
     } else if (hrf.startsWith('th')) {
-      if (prev != null && prev.length == 1)
+      if (prev != null && prev.length == 1 && prev != ' ')
         ltr += PASANGAN['th'] ?? '';
       else
         ltr += HURUF['th'] ?? '';
       if (hrf.length > 2 && hrf.contains('r')) ltr += SANDHANGAN['cakra'] ?? '';
     } else if (hrf.startsWith('dh')) {
-      if (prev != null && prev.length == 1)
+      if (prev != null && prev.length == 1 && prev != ' ')
         ltr += PASANGAN['dh'] ?? '';
       else
         ltr += HURUF['dh'] ?? '';
@@ -367,9 +547,10 @@ class TranslatorService {
     // --- 2. HANDLE BASIC SYLLABLES (len 2: ba, ka, fa, va, za) ---
     else if (hrf.length == 2) {
       // Cek apakah kena pasangan dari huruf sebelumnya
+      // FIX: Tambah ' ' (spasi) ke exclusion list agar kata setelah spasi tidak kena pasangan
       if (prev != null &&
           prev.length == 1 &&
-          !['h', 'r', 'ng'].contains(prev)) {
+          ![' ', 'h', 'r', 'ng'].contains(prev)) {
         // Cek apakah ada pasangan untuk huruf ini
         if (PASANGAN.containsKey(hrf[0])) {
           ltr += PASANGAN[hrf[0]]!;
@@ -411,9 +592,10 @@ class TranslatorService {
     // --- 4. HANDLE CLUSTER > 2 (kra, tra, fla) ---
     else if (hrf.length > 2) {
       String c1 = hrf[0];
+      // FIX: Tambah ' ' (spasi) ke exclusion list
       if (prev != null &&
           prev.length == 1 &&
-          !['h', 'r', 'ng'].contains(prev)) {
+          ![' ', 'h', 'r', 'ng'].contains(prev)) {
         ltr += PASANGAN[c1] ?? (HURUF[c1] ?? c1);
       } else {
         ltr += HURUF[c1] ?? c1;

@@ -151,8 +151,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               'Aksara Jawa memiliki berbagai jenis huruf: 20 aksara nglegena, aksara murda, swara, sandhangan, dan lainnya. Aksara di atas berganti setiap 10 detik untuk inspirasi belajar!',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
-                fontSize: 12,
+                color: theme.textTheme.bodyMedium?.color,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
                 height: 1.5,
               ),
             ),
@@ -197,8 +198,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               categoryNames[char.kategori] ??
                   char.kategori, // <-- Gunakan fallback
               style: TextStyle(
-                color: colors.main.withOpacity(0.7),
-                fontSize: 10,
+                color: colors.main,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
